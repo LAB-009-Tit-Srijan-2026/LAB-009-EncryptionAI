@@ -20,8 +20,44 @@ document.addEventListener('DOMContentLoaded', async () => {
     const messagesList = document.getElementById('messages-list');
     const typingIndicator = document.getElementById('typing-indicator');
 
-    // Initialize Real-Time connection
+    // Initialize Real-Time listeners BEFORE init
+    // This ensures we don't miss the chat-history event
+    const setupListeners = () => {
+        if (!socketManager.socket) {
+            setTimeout(setupListeners, 100);
+            return;
+        }
+
+        // Listen for history
+        socketManager.socket.on('chat-history', (history) => {
+            console.log('Received chat history:', history.length, 'messages');
+            messagesList.innerHTML = '';
+            if (Array.isArray(history)) {
+                history.forEach(appendMessage);
+                scrollToBottom();
+            }
+        });
+
+        // Listen for new messages
+        socketManager.socket.on('receive-message', (data) => {
+            console.log('Received message:', data);
+            appendMessage(data);
+            scrollToBottom();
+        });
+
+        // Listen for typing status
+        socketManager.socket.on('typing-status', (data) => {
+            if (data.typing && data.user_id != socketManager.userId) {
+                typingIndicator.textContent = `${data.user_name} is typing...`;
+            } else {
+                typingIndicator.textContent = '';
+            }
+        });
+    };
+
+    // Initialize connection
     socketManager.init(tripId);
+    setupListeners();
 
     // Fetch trip details to show name
     try {
@@ -29,32 +65,21 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('chat-trip-name').textContent = `${trip.destination} Group Chat`;
         renderPresence(trip.members);
     } catch (error) {
-        showToast(error.message, 'error');
+        console.error('Failed to load trip details:', error);
     }
-
-    // Listen for new messages
-    socketManager.socket.on('receive-message', (data) => {
-        appendMessage(data);
-        scrollToBottom();
-    });
-
-    // Listen for typing status
-    socketManager.socket.on('typing-status', (data) => {
-        if (data.typing) {
-            typingIndicator.textContent = `${data.user_name} is typing...`;
-        } else {
-            typingIndicator.textContent = '';
-        }
-    });
 
     // Handle form submission
     chatForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        const content = messageInput.value.trim();
-        if (content) {
-            socketManager.sendMessage(content);
-            messageInput.value = '';
-            socketManager.setTyping(false);
+        try {
+            const content = messageInput.value.trim();
+            if (content) {
+                socketManager.sendMessage(content);
+                messageInput.value = '';
+                socketManager.setTyping(false);
+            }
+        } catch (err) {
+            console.error('Chat submission error:', err);
         }
     });
 
@@ -69,14 +94,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     function appendMessage(data) {
-        const isSent = data.user_id === socketManager.userId;
+        if (!data || !data.content) return;
+        
+        // Use loose equality for ID comparison to be safe
+        const isSent = String(data.user_id) === String(socketManager.userId);
+        const name = data.user_name || 'Unknown';
+        const initial = name.charAt(0).toUpperCase();
+        
         const msgHtml = `
             <div class="message ${isSent ? 'sent' : ''} animate-slide-up">
-                <div class="message-avatar">${data.user_name.charAt(0)}</div>
+                <div class="message-avatar">${initial}</div>
                 <div class="message-content">
-                    <div class="message-user">${data.user_name}</div>
+                    <div class="message-user">${name}</div>
                     <div class="text">${data.content}</div>
-                    <div class="message-time">${new Date(data.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+                    <div class="message-time">${data.timestamp ? new Date(data.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : ''}</div>
                 </div>
             </div>
         `;
@@ -85,13 +116,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function renderPresence(members) {
         const list = document.getElementById('members-presence-list');
-        list.innerHTML = members.map(m => `
+        if (!list) return;
+        
+        list.innerHTML = (members || []).map(m => `
             <div class="member-item">
-                <div class="status-dot ${m.id === socketManager.userId ? 'online' : ''}"></div>
-                <span>${m.name} ${m.id === socketManager.userId ? '(You)' : ''}</span>
+                <div class="status-dot ${String(m.id) === String(socketManager.userId) ? 'online' : ''}"></div>
+                <span>${m.name} ${String(m.id) === String(socketManager.userId) ? '(You)' : ''}</span>
             </div>
         `).join('');
-        document.getElementById('online-count').textContent = `1 member online`;
+        
+        const onlineCount = members ? members.length : 0;
+        document.getElementById('online-count').textContent = `${onlineCount} members in group`;
     }
 
     function scrollToBottom() {

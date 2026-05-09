@@ -32,9 +32,15 @@
                 <h1>Expense Splitter</h1>
                 <p class="text-secondary" id="expense-meta">Manage group expenses effortlessly.</p>
             </div>
-            <button class="btn btn-primary" onclick="document.getElementById('add-expense-modal').style.display='flex'">
-                <i class="fas fa-plus"></i> Add Expense
-            </button>
+            <div class="flex gap-1">
+                <input type="file" id="receipt-upload" style="display: none;" accept="image/*">
+                <button class="btn btn-outline" onclick="document.getElementById('receipt-upload').click()" id="btn-scan">
+                    <i class="fas fa-camera"></i> Scan Receipt
+                </button>
+                <button class="btn btn-primary" onclick="document.getElementById('add-expense-modal').style.display='flex'">
+                    <i class="fas fa-plus"></i> Add Expense
+                </button>
+            </div>
         </div>
 
         <div class="stats-grid animate-slide-up delay-100">
@@ -55,9 +61,19 @@
         </div>
 
         <div class="mt-3 animate-slide-up delay-150">
-            <h2>Group Balances</h2>
+            <div class="flex justify-between items-center">
+                <h2>Group Balances</h2>
+                <div class="badge badge-success"><i class="fas fa-check-circle"></i> Equi-Split Active</div>
+            </div>
             <div id="split-summary" class="mt-1" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem;">
                 <!-- Split cards injected here -->
+            </div>
+        </div>
+
+        <div class="mt-3 animate-slide-up delay-150" id="settlement-container" style="display: none;">
+            <h2><i class="fas fa-magic text-gradient"></i> Smart Settlements (Simplified)</h2>
+            <div id="settlements-list" class="mt-1" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                <!-- Settlements injected here -->
             </div>
         </div>
 

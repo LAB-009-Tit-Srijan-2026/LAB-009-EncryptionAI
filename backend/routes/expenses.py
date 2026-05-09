@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, File, UploadFile
 from sqlalchemy.orm import Session
 from typing import List
 
@@ -6,8 +6,16 @@ from database.connection import get_db
 from models.database import Expense, Trip, User
 from schemas.pydantic_models import ExpenseCreate, Expense as ExpenseSchema
 from routes.auth import get_current_user
+from utils.settlement import simplify_debts
+from ai.gemini import parse_receipt
 
 router = APIRouter(prefix="/expenses", tags=["expenses"])
+
+@router.post("/scan-receipt")
+async def scan_receipt(file: UploadFile = File(...), current_user: User = Depends(get_current_user)):
+    contents = await file.read()
+    result = await parse_receipt(contents)
+    return result
 
 @router.post("/", response_model=ExpenseSchema)
 def add_expense(expense: ExpenseCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
@@ -69,5 +77,6 @@ def split_trip_expenses(trip_id: int, db: Session = Depends(get_db), current_use
         "num_members": num_members,
         "per_person_share": round(per_person, 2),
         "member_balances": member_balances,
+        "simplified_debts": simplify_debts(member_balances),
         "expenses": [{"id": e.id, "amount": e.amount, "description": e.description, "payer_id": e.payer_id} for e in expenses]
     }

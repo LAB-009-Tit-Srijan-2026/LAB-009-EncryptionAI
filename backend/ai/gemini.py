@@ -97,3 +97,29 @@ def generate_trip_itinerary(destination: str, budget: float, days: int, group_si
         print(f"Error generating itinerary with Gemini ({MODEL_NAME}): {e}")
         # Return the 'from scratch' local generator if AI fails or quota is hit
         return local_fallback()
+
+async def parse_receipt(image_data: bytes):
+    """
+    Uses Gemini to extract structured info from a receipt image.
+    """
+    try:
+        model = genai.GenerativeModel('gemini-1.5-flash-latest')
+        
+        prompt = """
+        Analyze this receipt and extract:
+        1. Total Amount (number only)
+        2. Merchant/Shop Name
+        3. Category (one of: Food, Transport, Accommodation, Entertainment, Shopping, Other)
+        Return ONLY valid JSON.
+        Format: {"amount": float, "merchant": "string", "category": "string"}
+        """
+        
+        response = model.generate_content([
+            prompt,
+            {"mime_type": "image/jpeg", "data": image_data}
+        ], generation_config={"response_mime_type": "application/json"})
+        
+        return json.loads(response.text)
+    except Exception as e:
+        print(f"OCR Error: {e}")
+        return {"amount": 0.0, "merchant": "Unknown", "category": "Other"}

@@ -161,4 +161,32 @@ class ApiService {
         });
         return this.handleResponse(response);
     }
+
+    static async scanReceipt(file) {
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        const response = await fetch(`${API_BASE_URL}/expenses/scan-receipt`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
+            body: formData,
+        });
+        return this.handleResponse(response);
+    }
+
+    static async searchBookings(tripId, type) {
+        const response = await fetch(`${API_BASE_URL}/booking/search/${tripId}?type=${type}`, {
+            headers: this.getHeaders(),
+        });
+        return this.handleResponse(response);
+    }
+
+    static async getBookingRecommendations(tripId) {
+        const response = await fetch(`${API_BASE_URL}/booking/recommendations/${tripId}`, {
+            headers: this.getHeaders(),
+        });
+        return this.handleResponse(response);
+    }
 }

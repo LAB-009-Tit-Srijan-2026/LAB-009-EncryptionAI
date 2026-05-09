@@ -69,7 +69,7 @@ class ChatMessage(Base):
     id = Column(Integer, primary_key=True, index=True)
     trip_id = Column(Integer, ForeignKey("trips.id"))
     user_id = Column(Integer, ForeignKey("users.id"))
-    content = Column(String)
+    content = Column(String(1000))
     timestamp = Column(DateTime, default=datetime.utcnow)
     
     user = relationship("User")

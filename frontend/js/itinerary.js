@@ -1,3 +1,6 @@
+let map;
+let markers = [];
+
 document.addEventListener('DOMContentLoaded', async () => {
     if (!checkAuth()) return;
 
@@ -23,7 +26,28 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (e.detail.type === 'member') {
             const updatedTrip = await ApiService.getTrip(tripId);
             renderMembers(updatedTrip.members);
+        } else if (e.detail.type === 'itinerary') {
+            const updatedTrip = await ApiService.getTrip(tripId);
+            renderItinerary(updatedTrip.itinerary.content);
         }
+    });
+
+    // Tab Switching
+    const tabs = document.querySelectorAll('.view-tab');
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            tabs.forEach(t => t.classList.remove('btn-primary', 'active'));
+            tab.classList.add('btn-primary', 'active');
+            
+            const view = tab.dataset.view;
+            document.getElementById('timeline-view').style.display = view === 'timeline' ? 'block' : 'none';
+            document.getElementById('map-view').style.display = view === 'map' ? 'block' : 'none';
+            
+            // Trigger map resize if switching to map
+            if (view === 'map' && map) {
+                google.maps.event.trigger(map, 'resize');
+            }
+        });
     });
 
     const loadingDiv = document.getElementById('ai-loading');
@@ -88,6 +112,34 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
+function initMap() {
+    const mapCenter = { lat: 20.5937, lng: 78.9629 }; // Default India
+    map = new google.maps.Map(document.getElementById("map-view"), {
+        zoom: 4,
+        center: mapCenter,
+        styles: [
+            { "elementType": "geometry", "stylers": [{ "color": "#242f3e" }] },
+            { "elementType": "labels.text.stroke", "stylers": [{ "color": "#242f3e" }] },
+            { "elementType": "labels.text.fill", "stylers": [{ "color": "#746855" }] },
+            { "featureType": "administrative.locality", "elementType": "labels.text.fill", "stylers": [{ "color": "#d59563" }] },
+            { "featureType": "poi", "elementType": "labels.text.fill", "stylers": [{ "color": "#d59563" }] },
+            { "featureType": "poi.park", "elementType": "geometry", "stylers": [{ "color": "#263c3f" }] },
+            { "featureType": "poi.park", "elementType": "labels.text.fill", "stylers": [{ "color": "#6b9a76" }] },
+            { "featureType": "road", "elementType": "geometry", "stylers": [{ "color": "#38414e" }] },
+            { "featureType": "road", "elementType": "geometry.stroke", "stylers": [{ "color": "#212a37" }] },
+            { "featureType": "road", "elementType": "labels.text.fill", "stylers": [{ "color": "#9ca5b3" }] },
+            { "featureType": "road.highway", "elementType": "geometry", "stylers": [{ "color": "#746855" }] },
+            { "featureType": "road.highway", "elementType": "geometry.stroke", "stylers": [{ "color": "#1f2835" }] },
+            { "featureType": "road.highway", "elementType": "labels.text.fill", "stylers": [{ "color": "#f3d19c" }] },
+            { "featureType": "transit", "elementType": "geometry", "stylers": [{ "color": "#2f3948" }] },
+            { "featureType": "transit.station", "elementType": "labels.text.fill", "stylers": [{ "color": "#d59563" }] },
+            { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#17263c" }] },
+            { "featureType": "water", "elementType": "labels.text.fill", "stylers": [{ "color": "#515c6d" }] },
+            { "featureType": "water", "elementType": "labels.text.stroke", "stylers": [{ "color": "#17263c" }] }
+        ]
+    });
+}
+
 function renderItinerary(data) {
     if (data.budget_breakdown) {
         document.getElementById('budget-hotel').textContent = `₹${data.budget_breakdown.hotel || 0}`;
@@ -122,6 +174,11 @@ function renderItinerary(data) {
                 </div>
             </div>
         `).join('');
+
+        // Plot on map if available
+        if (typeof google !== 'undefined' && map) {
+            updateMapWithActivities(data.days);
+        }
     } else {
         timeline.innerHTML = '<p>Could not parse itinerary days. Please regenerate.</p>';
     }
@@ -132,6 +189,43 @@ function renderItinerary(data) {
     } else {
         tipsContainer.parentElement.style.display = 'none';
     }
+}
+
+function updateMapWithActivities(days) {
+    // Clear old markers
+    markers.forEach(m => m.setMap(null));
+    markers = [];
+
+    const geocoder = new google.maps.Geocoder();
+    const bounds = new google.maps.LatLngBounds();
+
+    days.forEach(day => {
+        (day.activities || []).forEach(activity => {
+            geocoder.geocode({ address: activity }, (results, status) => {
+                if (status === "OK") {
+                    const marker = new google.maps.Marker({
+                        map: map,
+                        position: results[0].geometry.location,
+                        title: activity,
+                        label: day.day.toString(),
+                        animation: google.maps.Animation.DROP
+                    });
+                    
+                    const infoWindow = new google.maps.InfoWindow({
+                        content: `<div style="color: black;"><strong>Day ${day.day}:</strong> ${activity}</div>`
+                    });
+
+                    marker.addListener("click", () => {
+                        infoWindow.open(map, marker);
+                    });
+
+                    markers.push(marker);
+                    bounds.extend(results[0].geometry.location);
+                    map.fitBounds(bounds);
+                }
+            });
+        });
+    });
 }
 
 function renderMembers(members) {
