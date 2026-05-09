@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trip Chat - TravelAI</title>
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/pages.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .chat-container {
+            display: flex;
+            height: calc(100vh - 4rem);
+            gap: 1.5rem;
+        }
+        .chat-messages-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+        }
+        .chat-header {
+            padding: 1rem 2rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .messages-list {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        .message {
+            display: flex;
+            gap: 1rem;
+            max-width: 80%;
+        }
+        .message.sent {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        .message-content {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 0.75rem 1.25rem;
+            border-radius: 1.25rem;
+            position: relative;
+        }
+        .message.sent .message-content {
+            background: var(--primary);
+            color: white;
+        }
+        .message-user {
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+            color: var(--primary);
+        }
+        .message.sent .message-user { color: rgba(255, 255, 255, 0.8); }
+        .message-time {
+            font-size: 0.6rem;
+            opacity: 0.6;
+            margin-top: 0.25rem;
+            text-align: right;
+        }
+        .chat-input-area {
+            padding: 1.5rem 2rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .chat-input-wrapper {
+            display: flex;
+            gap: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.5rem 1.5rem;
+            border-radius: 100px;
+        }
+        .chat-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: white;
+            padding: 0.5rem 0;
+            outline: none;
+        }
+        .members-sidebar {
+            width: 250px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+        }
+        .member-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #444;
+        }
+        .status-dot.online {
+            background: var(--success);
+            box-shadow: 0 0 10px var(--success);
+        }
+        #typing-indicator {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            font-style: italic;
+            height: 1rem;
+        }
+    </style>
+</head>
+<body class="dashboard-layout">
+    <aside class="sidebar">
+        <a href="index.html" class="nav-brand mb-2">
+            <i class="fas fa-plane-departure"></i> TravelAI
+        </a>
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="sidebar-link"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="#" class="sidebar-link" id="nav-itinerary"><i class="fas fa-map-marked-alt"></i> Itinerary</a>
+            <a href="#" class="sidebar-link" id="nav-expenses"><i class="fas fa-wallet"></i> Expenses</a>
+            <a href="#" class="sidebar-link active" id="nav-chat"><i class="fas fa-comments"></i> Trip Chat</a>
+            <a href="#" class="sidebar-link" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </nav>
+    </aside>
+
+    <main class="dashboard-content">
+        <div class="chat-container animate-fade-in">
+            <div class="chat-messages-area">
+                <div class="chat-header">
+                    <div>
+                        <h2 id="chat-trip-name">Trip Group Chat</h2>
+                        <span class="text-secondary small" id="online-count">0 members online</span>
+                    </div>
+                    <div class="flex gap-1">
+                        <button class="btn btn-outline btn-sm"><i class="fas fa-search"></i></button>
+                        <button class="btn btn-outline btn-sm"><i class="fas fa-phone"></i></button>
+                    </div>
+                </div>
+                
+                <div class="messages-list" id="messages-list">
+                    <!-- Messages will be injected here -->
+                </div>
+
+                <div class="chat-input-area">
+                    <div id="typing-indicator"></div>
+                    <form id="chat-form" class="chat-input-wrapper">
+                        <button type="button" class="text-secondary" style="background:transparent; border:none; cursor:pointer;"><i class="fas fa-plus"></i></button>
+                        <input type="text" id="message-input" class="chat-input" placeholder="Type a message..." autocomplete="off">
+                        <button type="button" class="text-secondary" style="background:transparent; border:none; cursor:pointer;"><i class="far fa-smile"></i></button>
+                        <button type="submit" class="text-primary" style="background:transparent; border:none; cursor:pointer;"><i class="fas fa-paper-plane"></i></button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="members-sidebar">
+                <h3 class="mb-2">Members</h3>
+                <div id="members-presence-list">
+                    <!-- Members Presence will be injected here -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/socket-manager.js"></script>
+    <script src="js/chat.js"></script>
+</body>
+</html>

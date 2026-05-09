@@ -123,4 +123,42 @@ class ApiService {
         });
         return this.handleResponse(response);
     }
+
+    static async addMember(tripId, email) {
+        const response = await fetch(`${API_BASE_URL}/trips/${tripId}/members`, {
+            method: 'POST',
+            headers: this.getHeaders(),
+            body: JSON.stringify({ email }),
+        });
+        return this.handleResponse(response);
+    }
+
+    // --- Booking ---
+    static async searchHotels(city, budget) {
+        const response = await fetch(`${API_BASE_URL}/booking/hotels?city=${city}&budget=${budget}`, {
+            headers: this.getHeaders(),
+        });
+        return this.handleResponse(response);
+    }
+
+    static async searchTransport(city) {
+        const response = await fetch(`${API_BASE_URL}/booking/transport?city=${city}`, {
+            headers: this.getHeaders(),
+        });
+        return this.handleResponse(response);
+    }
+
+    static async searchActivities(city) {
+        const response = await fetch(`${API_BASE_URL}/booking/activities?city=${city}`, {
+            headers: this.getHeaders(),
+        });
+        return this.handleResponse(response);
+    }
+
+    static async getBookingRecommendations(tripId) {
+        const response = await fetch(`${API_BASE_URL}/booking/recommendations/${tripId}`, {
+            headers: this.getHeaders(),
+        });
+        return this.handleResponse(response);
+    }
 }

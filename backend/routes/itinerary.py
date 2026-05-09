@@ -21,7 +21,7 @@ def create_itinerary(trip_id: int, db: Session = Depends(get_db), current_user: 
     if existing:
         return existing
 
-    # Call Gemini API
+    # Call Gemini API (with robust local fallback)
     ai_response = generate_trip_itinerary(
         destination=trip.destination,
         budget=trip.budget,
@@ -29,9 +29,6 @@ def create_itinerary(trip_id: int, db: Session = Depends(get_db), current_user: 
         group_size=trip.group_size,
         interests=trip.interests
     )
-
-    if "error" in ai_response:
-        raise HTTPException(status_code=500, detail=ai_response["error"])
 
     # Save to db
     db_itinerary = Itinerary(trip_id=trip_id, content=json.dumps(ai_response))

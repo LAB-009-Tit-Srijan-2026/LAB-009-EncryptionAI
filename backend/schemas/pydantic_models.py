@@ -34,10 +34,14 @@ class TripBase(BaseModel):
 class TripCreate(TripBase):
     pass
 
+class MemberAdd(BaseModel):
+    email: str
+
 class Trip(TripBase):
     id: int
     owner_id: int
     created_at: datetime
+    members: List[User] = []
     class Config:
         from_attributes = True
 

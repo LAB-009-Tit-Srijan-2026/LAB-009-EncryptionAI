@@ -13,7 +13,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Set nav links
     document.getElementById('nav-itinerary').href = `itinerary.html?id=${tripId}`;
     document.getElementById('nav-expenses').href = `expenses.html?id=${tripId}`;
+    document.getElementById('nav-chat').href = `chat.html?id=${tripId}`;
     document.getElementById('btn-expenses').href = `expenses.html?id=${tripId}`;
+
+    // Initialize real-time sync
+    socketManager.init(tripId);
+
+    window.addEventListener('sync-data', async (e) => {
+        if (e.detail.type === 'member') {
+            const updatedTrip = await ApiService.getTrip(tripId);
+            renderMembers(updatedTrip.members);
+        }
+    });
 
     const loadingDiv = document.getElementById('ai-loading');
     const contentDiv = document.getElementById('itinerary-content');
@@ -22,7 +33,32 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Fetch trip details
         const trip = await ApiService.getTrip(tripId);
         document.getElementById('trip-title').textContent = `Trip to ${trip.destination}`;
-        document.getElementById('trip-meta').innerHTML = `<i class="far fa-clock"></i> ${trip.days} Days • <i class="fas fa-users"></i> ${trip.group_size} People • <i class="fas fa-wallet"></i> ₹${trip.budget}`;
+        document.getElementById('trip-meta').innerHTML = `<i class="far fa-clock"></i> ${trip.days} Days • <i class="fas fa-users"></i> ${trip.members.length} Members • <i class="fas fa-wallet"></i> ₹${trip.budget}`;
+
+        renderMembers(trip.members);
+
+        // Add member handler
+        const btnAddMember = document.getElementById('btn-add-member');
+        if (btnAddMember) {
+            btnAddMember.addEventListener('click', async () => {
+                const emailInput = document.getElementById('new-member-email');
+                const email = emailInput.value.trim();
+                if (!email) return;
+
+                try {
+                    await ApiService.addMember(tripId, email);
+                    showToast('Member added successfully!');
+                    socketManager.notifyUpdate('member');
+                    emailInput.value = '';
+                    // Reload trip to update member list
+                    const updatedTrip = await ApiService.getTrip(tripId);
+                    renderMembers(updatedTrip.members);
+                    document.getElementById('trip-meta').innerHTML = `<i class="far fa-clock"></i> ${updatedTrip.days} Days • <i class="fas fa-users"></i> ${updatedTrip.members.length} Members • <i class="fas fa-wallet"></i> ₹${updatedTrip.budget}`;
+                } catch (error) {
+                    showToast(error.message, 'error');
+                }
+            });
+        }
 
         loadingDiv.style.display = 'block';
 
@@ -41,6 +77,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         contentDiv.style.display = 'block';
 
         renderItinerary(itineraryData);
+        
+        // Load booking recommendations
+        const recs = await ApiService.getBookingRecommendations(tripId);
+        renderRecommendations(recs);
 
     } catch (error) {
         loadingDiv.style.display = 'none';
@@ -92,4 +132,42 @@ function renderItinerary(data) {
     } else {
         tipsContainer.parentElement.style.display = 'none';
     }
+}
+
+function renderMembers(members) {
+    const list = document.getElementById('member-list');
+    if (!list) return;
+    list.innerHTML = (members || []).map(m => `
+        <div class="glass-card" style="padding: 0.5rem 1rem; border-radius: 100px; display: flex; align-items: center; gap: 0.5rem; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255,255,255,0.1);">
+            <i class="fas fa-user-circle text-primary"></i>
+            <span>${m.name}</span>
+        </div>
+    `).join('');
+}
+
+function renderRecommendations(recs) {
+    const container = document.getElementById('booking-recommendations');
+    if (!container) return;
+    
+    // Combine some hotels and activities for a quick view
+    const items = [
+        ...(recs.hotels || []).slice(0, 1).map(h => ({...h, type: 'Hotel', icon: 'fa-hotel'})),
+        ...(recs.transport || []).slice(0, 1).map(t => ({...t, name: t.name, type: 'Transport', icon: 'fa-plane', price: t.price})),
+        ...(recs.activities || []).slice(0, 1).map(a => ({...a, type: 'Activity', icon: 'fa-camera-retro'}))
+    ];
+
+    container.innerHTML = items.map(item => `
+        <div class="glass-card animate-slide-up" style="padding: 1rem; position: relative; border: 1px solid rgba(99, 102, 241, 0.2);">
+            ${item.ai_recommended ? `<div class="badge" style="position: absolute; top: 0.5rem; right: 0.5rem; font-size: 0.6rem; background: var(--primary); color: white;"><i class="fas fa-magic"></i> AI PICK</div>` : ''}
+            <div class="flex items-center gap-1 mb-1">
+                <i class="fas ${item.icon} text-primary"></i>
+                <small class="font-bold text-secondary">${item.type.toUpperCase()}</small>
+            </div>
+            <h4 style="margin-bottom: 0.5rem;">${item.name}</h4>
+            <div class="flex justify-between items-center">
+                <span class="text-success" style="font-weight: 700;">₹${item.price}</span>
+                <a href="booking.html" class="btn btn-primary btn-sm" style="padding: 0.2rem 0.6rem; font-size: 0.7rem;">Book</a>
+            </div>
+        </div>
+    `).join('');
 }
