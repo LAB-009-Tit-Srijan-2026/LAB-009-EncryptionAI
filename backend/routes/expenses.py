@@ -1,0 +1,51 @@
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
+from typing import List
+
+from database.connection import get_db
+from models.database import Expense, Trip, User
+from schemas.pydantic_models import ExpenseCreate, Expense as ExpenseSchema
+from routes.auth import get_current_user
+
+router = APIRouter(prefix="/expenses", tags=["expenses"])
+
+@router.post("/", response_model=ExpenseSchema)
+def add_expense(expense: ExpenseCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    # Verify trip belongs to user
+    trip = db.query(Trip).filter(Trip.id == expense.trip_id, Trip.owner_id == current_user.id).first()
+    if not trip:
+        raise HTTPException(status_code=404, detail="Trip not found")
+
+    db_expense = Expense(**expense.model_dump(), payer_id=current_user.id)
+    db.add(db_expense)
+    db.commit()
+    db.refresh(db_expense)
+    return db_expense
+
+@router.get("/trip/{trip_id}", response_model=List[ExpenseSchema])
+def get_trip_expenses(trip_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    # Verify trip belongs to user
+    trip = db.query(Trip).filter(Trip.id == trip_id, Trip.owner_id == current_user.id).first()
+    if not trip:
+        raise HTTPException(status_code=404, detail="Trip not found")
+
+    expenses = db.query(Expense).filter(Expense.trip_id == trip_id).all()
+    return expenses
+
+@router.get("/trip/{trip_id}/split")
+def split_trip_expenses(trip_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    trip = db.query(Trip).filter(Trip.id == trip_id, Trip.owner_id == current_user.id).first()
+    if not trip:
+        raise HTTPException(status_code=404, detail="Trip not found")
+
+    expenses = db.query(Expense).filter(Expense.trip_id == trip_id).all()
+    
+    total_amount = sum(exp.amount for exp in expenses)
+    per_person = total_amount / trip.group_size if trip.group_size > 0 else 0
+
+    return {
+        "total_amount": total_amount,
+        "group_size": trip.group_size,
+        "per_person_share": per_person,
+        "expenses": [{"id": e.id, "amount": e.amount, "description": e.description} for e in expenses]
+    }
