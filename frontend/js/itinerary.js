@@ -1,6 +1,33 @@
 let map;
 let markers = [];
 
+const HARDCODED_HOTELS = {
+    "bhopal": [
+        { name: "Jehan Numa Palace Hotel", price: 8500, rating: 4.8, tag: "Heritage", image: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=800" },
+        { name: "Taj Lakefront", price: 12000, rating: 4.9, tag: "Lakeside Luxury", image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800" },
+        { name: "Noor-Us-Sabah Palace", price: 7200, rating: 4.6, tag: "Hilltop View", image: "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800" },
+        { name: "Courtyard by Marriott", price: 6500, rating: 4.5, tag: "Business Class", image: "https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=800" }
+    ],
+    "goa": [
+        { name: "The Leela Goa", price: 25000, rating: 4.9, tag: "Beachfront", image: "https://images.unsplash.com/photo-1582719508461-905c673771fd?w=800" },
+        { name: "Taj Exotica Resort & Spa", price: 22000, rating: 4.8, tag: "Private Beach", image: "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800" },
+        { name: "W Goa", price: 28000, rating: 4.7, tag: "Vibrant Nightlife", image: "https://images.unsplash.com/photo-1540541338287-41700207dee6?w=800" },
+        { name: "ITC Grand Goa", price: 18000, rating: 4.6, tag: "Village Style", image: "https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=800" }
+    ],
+    "london": [
+        { name: "The Savoy", price: 65000, rating: 4.9, tag: "Iconic Heritage", image: "https://images.unsplash.com/photo-1517840901100-8179e982ad91?w=800" },
+        { name: "Shangri-La The Shard", price: 85000, rating: 4.8, tag: "Skyline View", image: "https://images.unsplash.com/photo-1551882547-ff43c63efe56?w=800" },
+        { name: "The Ritz London", price: 75000, rating: 4.9, tag: "Ultra Luxury", image: "https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=800" },
+        { name: "Claridge's", price: 72000, rating: 4.8, tag: "Art Deco", image: "https://images.unsplash.com/photo-1535827841776-24afc1e255ac?w=800" }
+    ],
+    "paris": [
+        { name: "The Peninsula Paris", price: 95000, rating: 4.9, tag: "Palace Style", image: "https://images.unsplash.com/photo-1551133990-7ccc23b9948d?w=800" },
+        { name: "Hôtel Ritz Paris", price: 110000, rating: 5.0, tag: "History", image: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800" },
+        { name: "Four Seasons George V", price: 120000, rating: 4.9, tag: "Eiffel View", image: "https://images.unsplash.com/photo-1499916078039-922301b0eb9b?w=800" },
+        { name: "Le Meurice", price: 88000, rating: 4.7, tag: "Royal Garden", image: "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=800" }
+    ]
+};
+
 document.addEventListener('DOMContentLoaded', async () => {
     if (!checkAuth()) return;
 
@@ -117,7 +144,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         // Load booking recommendations and spotlight
         const recs = await ApiService.getBookingRecommendations(tripId);
-        renderHotelSpotlight(recs.hotels || []);
+        
+        // Detect destination and use hardcoded hotels if matched
+        let displayHotels = recs.hotels || [];
+        const destKey = trip.destination.toLowerCase();
+        for (const key in HARDCODED_HOTELS) {
+            if (destKey.includes(key)) {
+                displayHotels = HARDCODED_HOTELS[key];
+                break;
+            }
+        }
+        
+        renderHotelSpotlight(displayHotels, trip.destination);
         renderRecommendations(recs);
 
         // NEW: Handle Demand Alerts
@@ -300,8 +338,11 @@ function renderHero(trip) {
     if (dates) dates.textContent = `${trip.days} Days • ${trip.members.length} Travelers`;
 }
 
-function renderHotelSpotlight(hotels) {
+function renderHotelSpotlight(hotels, destination) {
     const container = document.getElementById('hotel-spotlight');
+    const citySpan = document.getElementById('spotlight-city');
+    
+    if (citySpan && destination) citySpan.textContent = destination;
     if (!container || !hotels.length) return;
 
     container.innerHTML = hotels.slice(0, 3).map((hotel, index) => `

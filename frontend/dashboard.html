@@ -3,71 +3,522 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - AI Travel Planner</title>
+    <title>Dashboard - TravelAI Premium</title>
     <link rel="stylesheet" href="css/global.css">
-    <link rel="stylesheet" href="css/components.css">
-    <link rel="stylesheet" href="css/animations.css">
-    <link rel="stylesheet" href="css/pages.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background-color: var(--bg-main);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 280px;
+            height: 100vh;
+            background: var(--surface);
+            border-right: 1px solid var(--glass-border);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 1000;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .sidebar-header {
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--bg-main);
+            border-radius: var(--radius-card);
+        }
+
+        .avatar-circle {
+            width: 48px;
+            height: 48px;
+            background: var(--primary-gradient);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.25rem;
+        }
+
+        .user-info h4 { font-size: 0.9rem; margin: 0; }
+        .user-info p { font-size: 0.75rem; color: var(--text-muted); margin: 0; }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 0 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.875rem 1rem;
+            border-radius: var(--radius-btn);
+            color: var(--text-secondary);
+            font-weight: 500;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+
+        .sidebar-link i { width: 20px; text-align: center; font-size: 1.1rem; }
+
+        .sidebar-link:hover {
+            background: rgba(99, 102, 241, 0.05);
+            color: var(--primary);
+        }
+
+        .sidebar-link.active {
+            background: var(--primary-gradient);
+            color: white;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+        }
+
+        .sidebar-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--glass-border);
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        /* Main Content Layout */
+        .main-wrapper {
+            flex: 1;
+            margin-left: 280px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .top-header {
+            height: 80px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 0 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 900;
+        }
+
+        .header-left h2 { font-size: 1.5rem; }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .search-bar {
+            position: relative;
+            width: 240px;
+            transition: var(--transition);
+        }
+
+        .search-bar:focus-within { width: 320px; }
+
+        .search-bar input {
+            width: 100%;
+            padding: 0.6rem 1rem 0.6rem 2.5rem;
+            background: var(--bg-main);
+            border: 1px solid var(--glass-border);
+            border-radius: 100px;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        .search-bar i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .icon-btn {
+            position: relative;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: var(--bg-main);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .icon-btn:hover { background: var(--glass-border); color: var(--primary); }
+
+        .badge-dot {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 8px;
+            height: 8px;
+            background: var(--danger);
+            border: 2px solid var(--surface);
+            border-radius: 50%;
+        }
+
+        /* Dashboard View */
+        .content-area { padding: 2.5rem; }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            font-family: 'Outfit', sans-serif;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label { font-size: 0.875rem; color: var(--text-secondary); }
+
+        .stat-trend {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 100px;
+            font-weight: 600;
+        }
+
+        .trend-up { background: rgba(16, 185, 129, 0.1); color: var(--success); }
+
+        /* Trip Grid */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .trips-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .trip-card {
+            overflow: hidden;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .trip-card:hover { transform: translateY(-8px); }
+
+        .trip-cover {
+            height: 160px;
+            position: relative;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            color: white;
+        }
+
+        .trip-status {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.4rem 0.8rem;
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(8px);
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .trip-card-body { padding: 1.5rem; }
+
+        .member-stack {
+            display: flex;
+            margin-bottom: 1.5rem;
+        }
+
+        .member-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid var(--surface);
+            margin-left: -10px;
+            background: #e2e8f0;
+        }
+
+        .member-avatar:first-child { margin-left: 0; }
+
+        .progress-container {
+            margin-top: 1rem;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: var(--bg-main);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary-gradient);
+            border-radius: 3px;
+            transition: width 1s ease-out;
+        }
+
+        /* Mobile Styles */
+        .mobile-toggle {
+            display: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .main-wrapper { margin-left: 0; }
+            .mobile-toggle { display: block; }
+            .top-header { padding: 0 1.5rem; }
+            .search-bar { display: none; }
+        }
+
+        /* Activity Feed */
+        .activity-card {
+            margin-top: 3rem;
+            padding: 2rem;
+        }
+
+        .timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .timeline-item {
+            display: flex;
+            gap: 1rem;
+            position: relative;
+        }
+
+        .timeline-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--bg-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            color: var(--primary);
+            flex-shrink: 0;
+        }
+
+        .timeline-content h5 { font-size: 0.9rem; margin-bottom: 0.2rem; }
+        .timeline-content p { font-size: 0.8rem; color: var(--text-secondary); }
+        .timeline-time { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.2rem; }
+
+        .empty-state {
+            text-align: center;
+            padding: 5rem 2rem;
+        }
+
+        .empty-illustration {
+            font-size: 4rem;
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+            opacity: 0.3;
+        }
+    </style>
 </head>
-<body class="dashboard-layout">
+<body data-theme="light">
     <!-- Sidebar -->
-    <aside class="sidebar">
-        <a href="index.html" class="nav-brand mb-2">
-            <i class="fas fa-plane-departure"></i> TravelAI
-        </a>
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a href="index.html" class="nav-brand">
+                <span class="text-gradient"><i class="fas fa-plane-departure"></i> TravelAI</span>
+            </a>
+            <div class="user-profile">
+                <div class="avatar-circle" id="user-initials">--</div>
+                <div class="user-info">
+                    <h4 id="user-name">Loading...</h4>
+                    <p id="user-email">...</p>
+                </div>
+            </div>
+        </div>
+
         <nav class="sidebar-nav">
-            <a href="dashboard.html" class="sidebar-link active"><i class="fas fa-home"></i> Dashboard</a>
-            <a href="create-trip.html" class="sidebar-link"><i class="fas fa-plus"></i> New Trip</a>
-            <a href="#" class="sidebar-link" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            <a href="dashboard.html" class="sidebar-link active"><i class="fas fa-grid-2"></i> Dashboard</a>
+            <a href="#" class="sidebar-link"><i class="fas fa-map-location-dot"></i> My Trips</a>
+            <a href="expenses.html" class="sidebar-link"><i class="fas fa-wallet"></i> Expenses</a>
+            <a href="booking.html" class="sidebar-link"><i class="fas fa-ticket"></i> Bookings</a>
+            <a href="chat.html" class="sidebar-link"><i class="fas fa-comments"></i> Chat</a>
+            <a href="#" class="sidebar-link"><i class="fas fa-street-view"></i> Guides</a>
+            <a href="#" class="sidebar-link"><i class="fas fa-hotel"></i> Nearby Stays</a>
         </nav>
+
+        <div class="sidebar-footer">
+            <a href="#" class="sidebar-link"><i class="fas fa-cog"></i> Settings</a>
+            <a href="#" onclick="logout()" class="sidebar-link" style="color: var(--danger);">
+                <i class="fas fa-sign-out-alt"></i> Sign Out
+            </a>
+        </div>
     </aside>
 
-    <!-- Main Content -->
-    <main class="dashboard-content">
-        <!-- WanderLust Hero Banner -->
-        <div class="hero-banner animate-fade-in">
-            <div class="hero-badge mb-1">
-                <i class="fas fa-sparkles"></i> Welcome to TravelAI Premium
+    <!-- Main Wrapper -->
+    <div class="main-wrapper">
+        <header class="top-header">
+            <div class="header-left">
+                <i class="fas fa-bars mobile-toggle" onclick="toggleSidebar()"></i>
+                <h2 id="page-title">Dashboard</h2>
             </div>
-            <h1 id="user-greeting">Your World, Expertly Planned ✨</h1>
-            <p class="text-white opacity-80">Explore your current trips or start a new adventure below.</p>
-        </div>
 
-        <div class="flex justify-between items-center mb-2">
-            <h2>Your Active Trips</h2>
-            <button class="btn btn-primary" onclick="window.location.href='create-trip.html'">
-                <i class="fas fa-plus"></i> Create New Trip
-            </button>
-        </div>
+            <div class="header-right">
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search trips, members...">
+                </div>
+                
+                <div class="icon-btn">
+                    <i class="fas fa-bell"></i>
+                    <div class="badge-dot"></div>
+                </div>
 
-        <div class="stats-grid animate-slide-up delay-100">
-            <div class="glass-card stat-card">
-                <i class="fas fa-plane stat-icon"></i>
-                <div>
-                    <h3 id="total-trips">0</h3>
-                    <p class="text-secondary">Total Trips</p>
+                <div class="avatar-circle" style="width: 40px; height: 40px; font-size: 0.9rem;" id="header-avatar">--</div>
+            </div>
+        </header>
+
+        <main class="content-area">
+            <!-- Stats Row -->
+            <div class="stats-row">
+                <div class="glass-card stat-card animate-slide-up">
+                    <div>
+                        <div class="stat-value text-gradient" id="stat-active-trips">0</div>
+                        <div class="stat-label">Active Trips</div>
+                    </div>
+                    <span class="stat-trend trend-up"><i class="fas fa-arrow-up"></i> 12%</span>
+                </div>
+                <div class="glass-card stat-card animate-slide-up animate-stagger-1">
+                    <div>
+                        <div class="stat-value text-gradient" id="stat-total-expenses">₹0</div>
+                        <div class="stat-label">Total Expenses</div>
+                    </div>
+                    <span class="stat-trend trend-up"><i class="fas fa-chart-line"></i> +₹2.5k</span>
+                </div>
+                <div class="glass-card stat-card animate-slide-up animate-stagger-2">
+                    <div>
+                        <div class="stat-value text-gradient" id="stat-trips-year">0</div>
+                        <div class="stat-label">Trips This Year</div>
+                    </div>
+                    <span class="stat-trend trend-up"><i class="fas fa-calendar"></i> 4 new</span>
+                </div>
+                <div class="glass-card stat-card animate-slide-up animate-stagger-3">
+                    <div>
+                        <div class="stat-value text-gradient" id="stat-members">0</div>
+                        <div class="stat-label">Group Members</div>
+                    </div>
+                    <span class="stat-trend trend-up"><i class="fas fa-users"></i> +2</span>
                 </div>
             </div>
-            <div class="glass-card stat-card">
-                <i class="fas fa-wallet stat-icon" style="color: var(--success); background: rgba(16, 185, 129, 0.1);"></i>
-                <div>
-                    <h3 id="total-budget">$0</h3>
-                    <p class="text-secondary">Planned Budget</p>
+
+            <!-- Your Trips -->
+            <div class="section-header">
+                <h3>Your Trips</h3>
+                <button class="btn btn-primary" onclick="window.location.href='create-trip.html'">
+                    <i class="fas fa-plus"></i> Create New Trip
+                </button>
+            </div>
+
+            <div id="trips-container" class="trips-grid">
+                <!-- Trip cards will be injected here -->
+                <div class="shimmer-card glass-card" style="height: 300px; width: 100%;"></div>
+                <div class="shimmer-card glass-card" style="height: 300px; width: 100%;"></div>
+            </div>
+
+            <!-- Activity Feed -->
+            <div class="glass-card activity-card animate-slide-up" style="margin-top: 3rem;">
+                <h3>Recent Activity</h3>
+                <div class="timeline" id="activity-feed">
+                    <div class="timeline-item">
+                        <div class="timeline-icon"><i class="fas fa-money-bill-transfer"></i></div>
+                        <div class="timeline-content">
+                            <h5>New Expense Added</h5>
+                            <p>Rahul added ₹1,200 for Dinner at Goa Beach Club.</p>
+                            <div class="timeline-time">2 hours ago</div>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-icon"><i class="fas fa-comment-dots"></i></div>
+                        <div class="timeline-content">
+                            <h5>Group Chat Update</h5>
+                            <p>Sneha sent 3 new messages in 'Bali Adventure'.</p>
+                            <div class="timeline-time">5 hours ago</div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-
-        <div class="mt-3 animate-slide-up delay-200">
-            <h2>Your Trips</h2>
-            <div id="trips-container" class="trips-grid mt-1">
-                <!-- Trips will be injected here -->
-            </div>
-        </div>
-    </main>
+        </main>
+    </div>
 
     <script src="js/api.js"></script>
     <script src="js/app.js"></script>
     <script src="js/dashboard.js"></script>
+    <script>
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+
+        // Handle active navigation states based on trip ID
+        document.addEventListener('DOMContentLoaded', () => {
+            const lastTripId = localStorage.getItem('last_trip_id');
+            const links = document.querySelectorAll('.sidebar-link');
+            
+            links.forEach(link => {
+                const href = link.getAttribute('href');
+                if (lastTripId && href !== 'dashboard.html' && href !== '#' && !href.includes('?')) {
+                    link.setAttribute('href', `${href}?id=${lastTripId}`);
+                }
+            });
+        });
+
+        // Init Theme
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.body.setAttribute('data-theme', savedTheme);
+    </script>
 </body>
 </html>

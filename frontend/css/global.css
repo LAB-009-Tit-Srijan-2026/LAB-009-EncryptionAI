@@ -8,17 +8,17 @@
     --secondary: #a855f7;
     
     /* Light Mode Surfaces */
-    --bg-main: #f8fafc;
-    --surface: #ffffff;
+    --bg-main: #B0C4DE;
+    --surface: rgba(255, 255, 255, 0.9);
     --text-primary: #0f172a;
-    --text-secondary: #475569;
-    --text-muted: #94a3b8;
+    --text-secondary: #334155;
+    --text-muted: #64748b;
     
-    /* Glass Morphism */
-    --glass-bg: rgba(255, 255, 255, 0.7);
-    --glass-border: rgba(255, 255, 255, 0.3);
-    --glass-blur: 12px;
-    --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+    /* Glass Morphism - Enhanced */
+    --glass-bg: rgba(255, 255, 255, 0.45);
+    --glass-border: rgba(255, 255, 255, 0.4);
+    --glass-blur: 16px;
+    --glass-shadow: 0 8px 32px 0 rgba(15, 23, 42, 0.1);
 
     /* System Colors */
     --success: #10b981;
@@ -54,6 +54,11 @@
 
 body {
     background-color: var(--bg-main);
+    background-image: 
+        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(168, 85, 247, 0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(99, 102, 241, 0.1) 0px, transparent 50%),
+        radial-gradient(at 0% 100%, rgba(168, 85, 247, 0.1) 0px, transparent 50%);
     color: var(--text-primary);
     font-family: 'Inter', sans-serif;
     font-size: clamp(14px, 1vw + 10px, 18px);
