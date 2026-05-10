@@ -28,6 +28,17 @@ const HARDCODED_HOTELS = {
     ]
 };
 
+const HARDCODED_GUIDES = [
+    { id: 1, name: "Rajesh Kumar", city: "bhopal", phone: "+91 98765 43210", expert: "Heritage & Culture", rating: 4.9, img: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400" },
+    { id: 2, name: "Amit Sharma", city: "bhopal", phone: "+91 91234 56789", expert: "Wildlife specialist", rating: 4.7, img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400" },
+    { id: 3, name: "David D'Souza", city: "goa", phone: "+91 88888 77777", expert: "Beaches & Nightlife", rating: 4.8, img: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400" },
+    { id: 4, name: "Maria Gomes", city: "goa", phone: "+91 99999 00000", expert: "Old Goa Architecture", rating: 4.9, img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400" },
+    { id: 5, name: "Arthur Morgan", city: "london", phone: "+44 20 1234 5678", expert: "Royal Landmarks", rating: 4.9, img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400" },
+    { id: 6, name: "Sarah Jenkins", city: "london", phone: "+44 77 9876 5432", expert: "Culinary & Pubs", rating: 4.8, img: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400" },
+    { id: 7, name: "Jean-Luc Picard", city: "paris", phone: "+33 1 45 67 89 01", expert: "Art & Louvre", rating: 5.0, img: "https://images.unsplash.com/photo-1463453091185-61582044d556?w=400" },
+    { id: 8, name: "Chloe Dubois", city: "paris", phone: "+33 6 12 34 56 78", expert: "Fashion & Montmartre", rating: 4.9, img: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400" }
+];
+
 document.addEventListener('DOMContentLoaded', async () => {
     if (!checkAuth()) return;
 
@@ -157,40 +168,42 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         renderHotelSpotlight(displayHotels, trip.destination);
         renderRecommendations(recs);
+        renderGuides(trip.destination);
 
-        // NEW: Handle Demand Alerts
+        // NEW: Handle Demand Alerts (Local Stay Suggestions)
         if (recs.demand_alert) {
-            showToast(`Peak Demand in ${trip.destination}! Local stays recommended.`, 'info');
             const alertHtml = `
                 <div class="glass-card mt-2 animate-pulse" style="border: 1px solid var(--danger); background: rgba(239, 68, 68, 0.05);">
                     <div class="flex items-center gap-1">
                         <i class="fas fa-exclamation-triangle text-danger"></i>
-                        <p class="small"><strong>Peak Demand Detected:</strong> Hotels are ${Math.round(100 - recs.demand_alert.hotel_availability)}% full. <a href="nearby-homes.html?tripId=${tripId}&city=${trip.destination}" class="text-primary font-bold">View Local Homes &rarr;</a></p>
+                        <p class="small"><strong>Peak Demand Detected:</strong> Hotels in ${trip.destination} are ${Math.round(100 - recs.demand_alert.hotel_availability)}% full. <a href="nearby-homes.html?tripId=${tripId}&city=${trip.destination}" class="text-primary font-bold">View Local Homes &rarr;</a></p>
                     </div>
                 </div>
             `;
             const container = document.getElementById('itinerary-content');
-            container.insertAdjacentHTML('afterbegin', alertHtml);
+            if (container) container.insertAdjacentHTML('afterbegin', alertHtml);
         }
 
-        // NEW: Handle Guide Recommendations
-        if (recs.guide_recommendations && recs.guide_recommendations.length > 0) {
-            const guide = recs.guide_recommendations[0];
-            if (guide.guides && guide.guides.length > 0) {
-                const guideHtml = `
-                    <div class="ai-suggestion-box mt-2 animate-fade-in">
-                        <div class="flex justify-between items-start">
+        // NEW: Handle Guide Recommendations (Updated for Fake Match)
+        const matchedGuides = HARDCODED_GUIDES.filter(g => trip.destination.toLowerCase().includes(g.city));
+        if (matchedGuides.length > 0) {
+            const guide = matchedGuides[0];
+            const guideHtml = `
+                <div class="ai-suggestion-box mt-2 animate-fade-in" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(168, 85, 247, 0.05)); border: 1px dashed var(--primary);">
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center gap-1">
+                            <img src="${guide.img}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary);">
                             <div>
-                                <p class="small"><strong>AI Guide Match:</strong> ${guide.analysis.reason}</p>
-                                <p class="x-small text-secondary mt-0-5">Expert: ${guide.guides[0].name} (${guide.guides[0].match_reason})</p>
+                                <p class="small"><strong>AI Top Match:</strong> Perfect guide for your interests.</p>
+                                <p class="x-small text-secondary">Expert: ${guide.name} (${guide.expert})</p>
                             </div>
-                            <a href="tourist-guides.html?tripId=${tripId}&city=${trip.destination}" class="btn btn-primary btn-sm" style="padding: 0.2rem 0.5rem; font-size: 0.7rem;">Book Expert</a>
                         </div>
+                        <a href="tel:${guide.phone}" class="btn btn-primary btn-sm"><i class="fas fa-phone"></i> Call Expert</a>
                     </div>
-                `;
-                const container = document.getElementById('itinerary-content');
-                if (container) container.insertAdjacentHTML('beforeend', guideHtml);
-            }
+                </div>
+            `;
+            const container = document.getElementById('itinerary-content');
+            if (container) container.insertAdjacentHTML('afterbegin', guideHtml);
         }
 
     } catch (error) {
@@ -358,9 +371,35 @@ function renderHotelSpotlight(hotels, destination) {
                 </div>
                 <p class="text-secondary small mt-1"><i class="fas fa-map-marker-alt"></i> Highly rated in ${hotel.tag || 'City Center'}</p>
                 <div class="flex gap-1 mt-2">
-                    <a href="booking.html" class="btn btn-primary btn-sm flex-1">Select Room</a>
+                    <a href="billing.html?name=${encodeURIComponent(hotel.name)}&price=${hotel.price}&img=${encodeURIComponent(hotel.image)}&loc=${encodeURIComponent(hotel.tag)}" class="btn btn-primary btn-sm flex-1">Select Room</a>
                 </div>
             </div>
+        </div>
+    `).join('');
+}
+
+function renderGuides(destination) {
+    const container = document.getElementById('guides-grid');
+    if (!container) return;
+
+    // Show destination-specific guides first
+    const destKey = destination.toLowerCase();
+    const sortedGuides = [...HARDCODED_GUIDES].sort((a, b) => {
+        const aMatch = destKey.includes(a.city);
+        const bMatch = destKey.includes(b.city);
+        return (bMatch ? 1 : 0) - (aMatch ? 1 : 0);
+    });
+
+    container.innerHTML = sortedGuides.map(guide => `
+        <div class="glass-card animate-slide-up" style="padding: 1rem; text-align: center; border: 1px solid ${destKey.includes(guide.city) ? 'var(--primary)' : 'var(--glass-border)'};">
+            <img src="${guide.img}" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin-bottom: 1rem; border: 3px solid var(--bg-main);">
+            <h4>${guide.name}</h4>
+            <p class="x-small text-primary font-bold mb-0-5">${guide.expert}</p>
+            <div class="rating-mini mb-1" style="justify-content: center;"><i class="fas fa-star"></i> ${guide.rating}</div>
+            <p class="small text-secondary mb-1"><i class="fas fa-location-dot"></i> ${guide.city.charAt(0).toUpperCase() + guide.city.slice(1)}</p>
+            <a href="tel:${guide.phone}" class="btn btn-outline btn-sm" style="width: 100%; justify-content: center;">
+                <i class="fas fa-phone"></i> ${guide.phone}
+            </a>
         </div>
     `).join('');
 }

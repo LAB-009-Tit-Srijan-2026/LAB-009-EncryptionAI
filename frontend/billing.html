@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Your Booking - TravelAI</title>
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { padding: 40px 20px; }
+        .billing-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 2rem;
+        }
+
+        .hotel-preview-card {
+            overflow: hidden;
+            height: 100%;
+        }
+
+        .hotel-image {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: var(--radius-card);
+            margin-bottom: 1.5rem;
+        }
+
+        .availability-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border-radius: 100px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .payment-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .card-input-wrapper {
+            position: relative;
+        }
+
+        .card-input-wrapper i {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--glass-border);
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        @media (max-width: 768px) {
+            .billing-container { grid-template-columns: 1fr; }
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            margin-bottom: 2rem;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+        .back-link:hover { color: var(--primary); }
+    </style>
+</head>
+<body data-theme="light">
+    <div class="wizard-container" style="max-width: 1000px;">
+        <a href="#" onclick="history.back()" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Itinerary
+        </a>
+
+        <div class="billing-container">
+            <!-- Left Side: Hotel Info -->
+            <div class="glass-card hotel-preview-card animate-slide-up">
+                <img id="hotel-img" src="" alt="Hotel" class="hotel-image">
+                <div style="padding: 0 1.5rem 1.5rem 1.5rem;">
+                    <div class="availability-badge">
+                        <i class="fas fa-check-circle"></i> Available - Only 2 rooms left!
+                    </div>
+                    <h1 id="hotel-name" class="text-gradient">Hotel Name</h1>
+                    <p id="hotel-loc" class="text-secondary mt-1"><i class="fas fa-map-marker-alt"></i> Location Tag</p>
+                    
+                    <div class="mt-2">
+                        <h3>Room Amenities</h3>
+                        <div class="flex gap-2 mt-1" style="flex-wrap: wrap;">
+                            <span class="small text-secondary"><i class="fas fa-wifi"></i> Free WiFi</span>
+                            <span class="small text-secondary"><i class="fas fa-snowflake"></i> AC</span>
+                            <span class="small text-secondary"><i class="fas fa-mug-hot"></i> Breakfast</span>
+                            <span class="small text-secondary"><i class="fas fa-swimming-pool"></i> Pool Access</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-2 glass-card" style="background: rgba(99, 102, 241, 0.05); border: 1px solid var(--primary); padding: 1rem;">
+                        <p class="small"><strong>Policy:</strong> Free cancellation until 24 hours before check-in. No hidden fees.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side: Billing Form -->
+            <div class="glass-card animate-slide-up" style="animation-delay: 0.2s;">
+                <h2 class="mb-2">Secure Checkout</h2>
+                
+                <div class="payment-form">
+                    <div class="form-group">
+                        <label class="form-label">Cardholder Name</label>
+                        <input type="text" class="form-control" placeholder="John Doe">
+                    </div>
+
+                    <div class="card-input-wrapper">
+                        <div class="form-group">
+                            <label class="form-label">Card Number</label>
+                            <input type="text" class="form-control" placeholder="**** **** **** 1234">
+                        </div>
+                        <i class="fab fa-cc-visa"></i>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label class="form-label">Expiry (MM/YY)</label>
+                            <input type="text" class="form-control" placeholder="12/26">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">CVV</label>
+                            <input type="password" class="form-control" placeholder="***">
+                        </div>
+                    </div>
+
+                    <div class="mt-2">
+                        <div class="summary-row">
+                            <span>Room Charge (1 Night)</span>
+                            <span id="price-base">₹0</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Taxes & Fees (12%)</span>
+                            <span id="price-tax">₹0</span>
+                        </div>
+                        <div class="total-row">
+                            <span>Total</span>
+                            <span id="price-total" class="text-gradient">₹0</span>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary btn-lg mt-1" style="width: 100%; justify-content: center;" onclick="confirmBooking()">
+                        Confirm & Pay <i class="fas fa-lock ml-0-5"></i>
+                    </button>
+                    
+                    <p class="x-small text-center text-muted mt-1">
+                        <i class="fas fa-shield-halved"></i> Your payment information is encrypted and secure.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const name = params.get('name') || "Luxury Resort";
+            const price = parseInt(params.get('price')) || 5000;
+            const img = params.get('img') || "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800";
+            const loc = params.get('loc') || "Premium Location";
+
+            document.getElementById('hotel-name').textContent = name;
+            document.getElementById('hotel-loc').innerHTML = `<i class="fas fa-map-marker-alt"></i> ${loc}`;
+            document.getElementById('hotel-img').src = img;
+
+            const tax = Math.round(price * 0.12);
+            const total = price + tax;
+
+            document.getElementById('price-base').textContent = `₹${price.toLocaleString()}`;
+            document.getElementById('price-tax').textContent = `₹${tax.toLocaleString()}`;
+            document.getElementById('price-total').textContent = `₹${total.toLocaleString()}`;
+        });
+
+        function confirmBooking() {
+            const btn = document.querySelector('.btn-primary');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                alert('Success! Your room has been booked. You will receive a confirmation email shortly.');
+                window.location.href = 'dashboard.html';
+            }, 2000);
+        }
+
+        // Init Theme
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.body.setAttribute('data-theme', savedTheme);
+    </script>
+</body>
+</html>

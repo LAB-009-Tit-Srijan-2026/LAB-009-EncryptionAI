@@ -19,10 +19,9 @@
         <nav class="sidebar-nav">
             <a href="dashboard.html" class="sidebar-link"><i class="fas fa-home"></i> Dashboard</a>
             <a href="#" class="sidebar-link active" id="nav-itinerary"><i class="fas fa-map-marked-alt"></i> Itinerary</a>
-            <a href="nearby-homes.html" class="sidebar-link"><i class="fas fa-house-user"></i> Nearby Stays</a>
-            <a href="host-dashboard.html" class="sidebar-link"><i class="fas fa-user-tie"></i> Become a Host</a>
-            <a href="#" class="sidebar-link" id="nav-expenses"><i class="fas fa-wallet"></i> Expenses</a>
-            <a href="#" class="sidebar-link" id="nav-chat"><i class="fas fa-comments"></i> Trip Chat</a>
+            <a href="chat.html" class="sidebar-link"><i class="fas fa-comments"></i> Chat</a>
+            <a href="tourist-guides.html" class="sidebar-link"><i class="fas fa-map-signs"></i> Guides</a>
+            <a href="nearby-homes.html" class="sidebar-link"><i class="fas fa-hotel"></i> Nearby Stays</a>
             <a href="#" class="sidebar-link" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
         </nav>
     </aside>
@@ -101,10 +100,6 @@
                 <h3><i class="fas fa-users"></i> Trip Members</h3>
                 <div id="member-list" class="mt-1" style="display: flex; flex-wrap: wrap; gap: 0.75rem;">
                     <!-- Members injected here -->
-                </div>
-                <div class="mt-2 flex gap-1">
-                    <input type="email" id="new-member-email" class="form-control" placeholder="Add member by email..." style="max-width: 300px;">
-                    <button class="btn btn-secondary" id="btn-add-member"><i class="fas fa-user-plus"></i> Add Member</button>
                 </div>
             </div>
 

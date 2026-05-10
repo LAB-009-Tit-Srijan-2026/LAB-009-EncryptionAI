@@ -409,14 +409,14 @@
             </div>
 
             <div class="header-right">
+                <div class="icon-btn" style="order: -1;">
+                    <i class="fas fa-bell"></i>
+                    <div class="badge-dot"></div>
+                </div>
+
                 <div class="search-bar">
                     <i class="fas fa-search"></i>
                     <input type="text" placeholder="Search trips, members...">
-                </div>
-                
-                <div class="icon-btn">
-                    <i class="fas fa-bell"></i>
-                    <div class="badge-dot"></div>
                 </div>
 
                 <div class="avatar-circle" style="width: 40px; height: 40px; font-size: 0.9rem;" id="header-avatar">--</div>
@@ -456,6 +456,29 @@
                 </div>
             </div>
 
+            <!-- Recent Activity & Bookings (Now First) -->
+            <div class="glass-card activity-card animate-slide-up" style="margin-top: 0; margin-bottom: 3rem;">
+                <h3><i class="fas fa-clock-rotate-left"></i> Recent Bookings & Activity</h3>
+                <div class="timeline" id="activity-feed">
+                    <div class="timeline-item">
+                        <div class="timeline-icon" style="background: rgba(16, 185, 129, 0.1); color: var(--success);"><i class="fas fa-hotel"></i></div>
+                        <div class="timeline-content">
+                            <h5>Hotel Booking Confirmed</h5>
+                            <p>You booked <strong>Taj Lakefront, Bhopal</strong> for 2 nights.</p>
+                            <div class="timeline-time">Just now</div>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-icon"><i class="fas fa-money-bill-transfer"></i></div>
+                        <div class="timeline-content">
+                            <h5>New Expense Added</h5>
+                            <p>Rahul added ₹1,200 for Dinner at Goa Beach Club.</p>
+                            <div class="timeline-time">2 hours ago</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Your Trips -->
             <div class="section-header">
                 <h3>Your Trips</h3>
@@ -468,29 +491,6 @@
                 <!-- Trip cards will be injected here -->
                 <div class="shimmer-card glass-card" style="height: 300px; width: 100%;"></div>
                 <div class="shimmer-card glass-card" style="height: 300px; width: 100%;"></div>
-            </div>
-
-            <!-- Activity Feed -->
-            <div class="glass-card activity-card animate-slide-up" style="margin-top: 3rem;">
-                <h3>Recent Activity</h3>
-                <div class="timeline" id="activity-feed">
-                    <div class="timeline-item">
-                        <div class="timeline-icon"><i class="fas fa-money-bill-transfer"></i></div>
-                        <div class="timeline-content">
-                            <h5>New Expense Added</h5>
-                            <p>Rahul added ₹1,200 for Dinner at Goa Beach Club.</p>
-                            <div class="timeline-time">2 hours ago</div>
-                        </div>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="timeline-icon"><i class="fas fa-comment-dots"></i></div>
-                        <div class="timeline-content">
-                            <h5>Group Chat Update</h5>
-                            <p>Sneha sent 3 new messages in 'Bali Adventure'.</p>
-                            <div class="timeline-time">5 hours ago</div>
-                        </div>
-                    </div>
-                </div>
             </div>
         </main>
     </div>

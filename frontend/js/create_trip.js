@@ -21,6 +21,19 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const trip = await ApiService.createTrip(tripData);
             
+            // Handle member invitations
+            const membersInput = document.getElementById('trip-members').value.trim();
+            if (membersInput) {
+                const emails = membersInput.split(',').map(e => e.trim()).filter(e => e);
+                for (const email of emails) {
+                    try {
+                        await ApiService.addMember(trip.id, email);
+                    } catch (memberError) {
+                        console.error(`Failed to add member ${email}:`, memberError);
+                    }
+                }
+            }
+            
             // Store as current trip for sidebar persistence
             localStorage.setItem('last_trip_id', trip.id);
             
