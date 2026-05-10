@@ -40,6 +40,7 @@ class Trip(Base):
     itinerary = relationship("Itinerary", back_populates="trip", uselist=False)
     expenses = relationship("Expense", back_populates="trip")
     messages = relationship("ChatMessage", back_populates="trip")
+    votes = relationship("BookingVote", back_populates="trip")
 
 class Itinerary(Base):
     __tablename__ = "itineraries"
@@ -74,3 +75,15 @@ class ChatMessage(Base):
     
     user = relationship("User")
     trip = relationship("Trip", back_populates="messages")
+
+class BookingVote(Base):
+    __tablename__ = "booking_votes"
+    id = Column(Integer, primary_key=True, index=True)
+    trip_id = Column(Integer, ForeignKey("trips.id"))
+    user_id = Column(Integer, ForeignKey("users.id"))
+    option_name = Column(String(255)) # The name of the hotel/activity
+    category = Column(String(50))     # 'hotels', 'transport', etc.
+    timestamp = Column(DateTime, default=datetime.utcnow)
+
+    trip = relationship("Trip", back_populates="votes")
+    user = relationship("User")

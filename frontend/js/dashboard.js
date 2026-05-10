@@ -17,11 +17,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 function renderTrips(trips) {
     const container = document.getElementById('trips-container');
-    document.getElementById('total-trips').textContent = trips.length;
+    const tripsCount = document.getElementById('active-trips-count');
+    if (tripsCount) tripsCount.textContent = trips.length;
     
     let totalBudget = 0;
     trips.forEach(t => totalBudget += t.budget);
-    document.getElementById('total-budget').textContent = `₹${totalBudget.toLocaleString()}`;
+    const budgetEl = document.getElementById('total-budget');
+    if (budgetEl) budgetEl.textContent = `₹${totalBudget.toLocaleString()}`;
 
     if (trips.length === 0) {
         container.innerHTML = '<p class="text-secondary">No trips yet. Create one to get started!</p>';

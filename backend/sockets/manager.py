@@ -1,7 +1,8 @@
 import socketio
 from typing import Dict, Set
 from database.connection import SessionLocal
-from models.database import ChatMessage, User
+from models.database import ChatMessage, User, BookingVote
+from sqlalchemy import func
 from datetime import datetime
 
 # Create a Socket.IO AsyncServer
@@ -51,11 +52,63 @@ async def join_trip(sid, data):
                 })
             print(f"Emitting {len(history)} messages to sid {sid}")
             await sio.emit("chat-history", history, room=sid)
+            
+            # Load Votes
+            votes = db.query(
+                BookingVote.option_name, 
+                func.count(BookingVote.id).label('count')
+            ).filter(BookingVote.trip_id == trip_id).group_by(BookingVote.option_name).all()
+            
+            vote_data = {v.option_name: v.count for v in votes}
+            await sio.emit("booking-votes-update", vote_data, room=sid)
         finally:
             db.close()
         
         # Notify others
         await sio.emit("user-joined", {"user_id": user_id}, room=f"trip_{trip_id}", skip_sid=sid)
+
+@sio.on("vote-booking")
+async def vote_booking(sid, data):
+    trip_id = data.get("trip_id")
+    user_id = data.get("user_id")
+    option_name = data.get("option_name")
+    category = data.get("category")
+    
+    if all([trip_id, user_id, option_name]):
+        db = SessionLocal()
+        try:
+            # Simple rule: One vote per category per user
+            existing_vote = db.query(BookingVote).filter(
+                BookingVote.trip_id == trip_id,
+                BookingVote.user_id == user_id,
+                BookingVote.category == category
+            ).first()
+            
+            if existing_vote:
+                existing_vote.option_name = option_name
+                existing_vote.timestamp = datetime.utcnow()
+            else:
+                new_vote = BookingVote(
+                    trip_id=trip_id, 
+                    user_id=user_id, 
+                    option_name=option_name,
+                    category=category
+                )
+                db.add(new_vote)
+            
+            db.commit()
+            
+            # Recalculate all votes for this trip and broadcast
+            votes = db.query(
+                BookingVote.option_name, 
+                func.count(BookingVote.id).label('count')
+            ).filter(BookingVote.trip_id == trip_id).group_by(BookingVote.option_name).all()
+            
+            vote_data = {v.option_name: v.count for v in votes}
+            await sio.emit("booking-votes-update", vote_data, room=f"trip_{trip_id}")
+            
+        finally:
+            db.close()
 
 @sio.on("send-message")
 async def send_message(sid, data):

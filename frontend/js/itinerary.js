@@ -14,10 +14,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // Set nav links
-    document.getElementById('nav-itinerary').href = `itinerary.html?id=${tripId}`;
-    document.getElementById('nav-expenses').href = `expenses.html?id=${tripId}`;
-    document.getElementById('nav-chat').href = `chat.html?id=${tripId}`;
-    document.getElementById('btn-expenses').href = `expenses.html?id=${tripId}`;
+    const navItin = document.getElementById('nav-itinerary');
+    const navExp = document.getElementById('nav-expenses');
+    const navChat = document.getElementById('nav-chat');
+    const btnExp = document.getElementById('btn-expenses');
+
+    if (navItin) navItin.href = `itinerary.html?id=${tripId}`;
+    if (navExp) navExp.href = `expenses.html?id=${tripId}`;
+    if (navChat) navChat.href = `chat.html?id=${tripId}`;
+    if (btnExp) btnExp.href = `expenses.html?id=${tripId}`;
 
     // Initialize real-time sync
     socketManager.init(tripId);
@@ -56,10 +61,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
         // Fetch trip details
         const trip = await ApiService.getTrip(tripId);
-        document.getElementById('trip-title').textContent = `Trip to ${trip.destination}`;
-        document.getElementById('trip-meta').innerHTML = `<i class="far fa-clock"></i> ${trip.days} Days • <i class="fas fa-users"></i> ${trip.members.length} Members • <i class="fas fa-wallet"></i> ₹${trip.budget}`;
+        
+        // Render Hero Section
+        renderHero(trip);
+        
+        const tripDest = document.getElementById('trip-destination');
+        if (tripDest) tripDest.textContent = trip.destination;
 
-        renderMembers(trip.members);
+        const tripBudget = document.getElementById('trip-budget');
+        if (tripBudget) tripBudget.textContent = trip.budget;
+        
+        const tripGroup = document.getElementById('trip-group-size');
+        if (tripGroup) tripGroup.textContent = trip.members.length;
 
         // Add member handler
         const btnAddMember = document.getElementById('btn-add-member');
@@ -77,7 +90,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     // Reload trip to update member list
                     const updatedTrip = await ApiService.getTrip(tripId);
                     renderMembers(updatedTrip.members);
-                    document.getElementById('trip-meta').innerHTML = `<i class="far fa-clock"></i> ${updatedTrip.days} Days • <i class="fas fa-users"></i> ${updatedTrip.members.length} Members • <i class="fas fa-wallet"></i> ₹${updatedTrip.budget}`;
+                    renderHero(updatedTrip); // This updates the hero badges correctly
                 } catch (error) {
                     showToast(error.message, 'error');
                 }
@@ -102,9 +115,45 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         renderItinerary(itineraryData);
         
-        // Load booking recommendations
+        // Load booking recommendations and spotlight
         const recs = await ApiService.getBookingRecommendations(tripId);
+        renderHotelSpotlight(recs.hotels || []);
         renderRecommendations(recs);
+
+        // NEW: Handle Demand Alerts
+        if (recs.demand_alert) {
+            showToast(`Peak Demand in ${trip.destination}! Local stays recommended.`, 'info');
+            const alertHtml = `
+                <div class="glass-card mt-2 animate-pulse" style="border: 1px solid var(--danger); background: rgba(239, 68, 68, 0.05);">
+                    <div class="flex items-center gap-1">
+                        <i class="fas fa-exclamation-triangle text-danger"></i>
+                        <p class="small"><strong>Peak Demand Detected:</strong> Hotels are ${Math.round(100 - recs.demand_alert.hotel_availability)}% full. <a href="nearby-homes.html?tripId=${tripId}&city=${trip.destination}" class="text-primary font-bold">View Local Homes &rarr;</a></p>
+                    </div>
+                </div>
+            `;
+            const container = document.getElementById('itinerary-content');
+            container.insertAdjacentHTML('afterbegin', alertHtml);
+        }
+
+        // NEW: Handle Guide Recommendations
+        if (recs.guide_recommendations && recs.guide_recommendations.length > 0) {
+            const guide = recs.guide_recommendations[0];
+            if (guide.guides && guide.guides.length > 0) {
+                const guideHtml = `
+                    <div class="ai-suggestion-box mt-2 animate-fade-in">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="small"><strong>AI Guide Match:</strong> ${guide.analysis.reason}</p>
+                                <p class="x-small text-secondary mt-0-5">Expert: ${guide.guides[0].name} (${guide.guides[0].match_reason})</p>
+                            </div>
+                            <a href="tourist-guides.html?tripId=${tripId}&city=${trip.destination}" class="btn btn-primary btn-sm" style="padding: 0.2rem 0.5rem; font-size: 0.7rem;">Book Expert</a>
+                        </div>
+                    </div>
+                `;
+                const container = document.getElementById('itinerary-content');
+                if (container) container.insertAdjacentHTML('beforeend', guideHtml);
+            }
+        }
 
     } catch (error) {
         loadingDiv.style.display = 'none';
@@ -142,9 +191,13 @@ function initMap() {
 
 function renderItinerary(data) {
     if (data.budget_breakdown) {
-        document.getElementById('budget-hotel').textContent = `₹${data.budget_breakdown.hotel || 0}`;
-        document.getElementById('budget-food').textContent = `₹${data.budget_breakdown.food || 0}`;
-        document.getElementById('budget-transport').textContent = `₹${data.budget_breakdown.transport || 0}`;
+        const hotelEl = document.getElementById('budget-hotel');
+        const foodEl = document.getElementById('budget-food');
+        const transEl = document.getElementById('budget-transport');
+        
+        if (hotelEl) hotelEl.textContent = `₹${data.budget_breakdown.hotel || 0}`;
+        if (foodEl) foodEl.textContent = `₹${data.budget_breakdown.food || 0}`;
+        if (transEl) transEl.textContent = `₹${data.budget_breakdown.transport || 0}`;
     }
 
     const timeline = document.getElementById('timeline-container');
@@ -235,6 +288,38 @@ function renderMembers(members) {
         <div class="glass-card" style="padding: 0.5rem 1rem; border-radius: 100px; display: flex; align-items: center; gap: 0.5rem; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255,255,255,0.1);">
             <i class="fas fa-user-circle text-primary"></i>
             <span>${m.name}</span>
+        </div>
+    `).join('');
+}
+
+function renderHero(trip) {
+    const title = document.getElementById('trip-title');
+    const dates = document.getElementById('trip-dates');
+    
+    if (title) title.textContent = `Trip to ${trip.destination}`;
+    if (dates) dates.textContent = `${trip.days} Days • ${trip.members.length} Travelers`;
+}
+
+function renderHotelSpotlight(hotels) {
+    const container = document.getElementById('hotel-spotlight');
+    if (!container || !hotels.length) return;
+
+    container.innerHTML = hotels.slice(0, 3).map((hotel, index) => `
+        <div class="spotlight-card animate-slide-up" style="animation-delay: ${index * 150}ms">
+            <div class="spotlight-img-container">
+                <img src="${hotel.image || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500'}" alt="${hotel.name}">
+                <div class="spotlight-price">₹${hotel.price}</div>
+            </div>
+            <div class="spotlight-info">
+                <div class="flex justify-between items-start">
+                    <h4>${hotel.name}</h4>
+                    <div class="rating-mini"><i class="fas fa-star"></i> ${hotel.rating}</div>
+                </div>
+                <p class="text-secondary small mt-1"><i class="fas fa-map-marker-alt"></i> Highly rated in ${hotel.tag || 'City Center'}</p>
+                <div class="flex gap-1 mt-2">
+                    <a href="booking.html" class="btn btn-primary btn-sm flex-1">Select Room</a>
+                </div>
+            </div>
         </div>
     `).join('');
 }

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demand Heatmap - TravelAI</title>
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/pages.css">
+    <link rel="stylesheet" href="css/local-stays.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="dashboard-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <a href="index.html" class="nav-brand mb-2">
+            <i class="fas fa-plane-departure"></i> TravelAI
+        </a>
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="sidebar-link"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="#" class="sidebar-link" id="nav-itinerary"><i class="fas fa-map-marked-alt"></i> Itinerary</a>
+            <a href="nearby-homes.html" class="sidebar-link"><i class="fas fa-house-user"></i> Nearby Stays</a>
+            <a href="demand-heatmap.html" class="sidebar-link active"><i class="fas fa-chart-line"></i> Demand Analysis</a>
+            <a href="host-dashboard.html" class="sidebar-link"><i class="fas fa-user-tie"></i> Host Dashboard</a>
+            <a href="#" class="sidebar-link" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </nav>
+    </aside>
+
+    <main class="dashboard-content">
+        <div class="dashboard-header animate-fade-in">
+            <div>
+                <h1 class="text-gradient">Demand Analysis & Heatmap</h1>
+                <p class="text-secondary">Predicting crowd spikes and festival demand for local stays.</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-2 mt-3">
+            <div class="glass-card">
+                <h3 class="text-secondary small">Current Popularity</h3>
+                <h2 id="current-score">78%</h2>
+                <div class="badge badge-warning mt-1">High Demand</div>
+            </div>
+            <div class="glass-card">
+                <h3 class="text-secondary small">Predicted Peak</h3>
+                <h2>Saturday</h2>
+                <p class="text-secondary small mt-1">Expected 92% occupancy</p>
+            </div>
+            <div class="glass-card">
+                <h3 class="text-secondary small">Local Stays Active</h3>
+                <h2>142 Homes</h2>
+                <p class="text-secondary small mt-1">Supporting overflow</p>
+            </div>
+        </div>
+
+        <div class="heatmap-container animate-slide-up">
+            <div class="flex justify-between items-center mb-2">
+                <h3>7-Day Demand Forecast: <span id="target-city">Mumbai</span></h3>
+                <div class="flex gap-1 small text-secondary">
+                    <span style="display: flex; align-items: center; gap: 4px;"><i class="fas fa-square text-primary"></i> Normal</span>
+                    <span style="display: flex; align-items: center; gap: 4px;"><i class="fas fa-square text-warning"></i> High</span>
+                    <span style="display: flex; align-items: center; gap: 4px;"><i class="fas fa-square text-danger"></i> Peak</span>
+                </div>
+            </div>
+            <div id="heatmap-bars" class="demand-bar-container">
+                <!-- Bars injected here -->
+            </div>
+            <div class="flex justify-between mt-1 text-secondary small">
+                <span>Today</span>
+                <span>+1 Day</span>
+                <span>+2 Days</span>
+                <span>+3 Days</span>
+                <span>+4 Days</span>
+                <span>+5 Days</span>
+                <span>Next Week</span>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <h2>Active High-Demand Alerts</h2>
+            <div id="alerts-container" class="mt-2" style="display: grid; gap: 1rem;">
+                <!-- Alerts injected here -->
+            </div>
+        </div>
+    </main>
+
+    <script src="js/api.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/demand-heatmap.js"></script>
+</body>
+</html>

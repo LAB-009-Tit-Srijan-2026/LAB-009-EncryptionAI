@@ -25,12 +25,20 @@
 
     <!-- Main Content -->
     <main class="dashboard-content">
-        <div class="dashboard-header animate-fade-in">
-            <div>
-                <h1 id="user-greeting">Welcome back!</h1>
-                <p class="text-secondary">Here's an overview of your travels.</p>
+        <!-- WanderLust Hero Banner -->
+        <div class="hero-banner animate-fade-in">
+            <div class="hero-badge mb-1">
+                <i class="fas fa-sparkles"></i> Welcome to TravelAI Premium
             </div>
-            <a href="create-trip.html" class="btn btn-primary"><i class="fas fa-plus"></i> Create Trip</a>
+            <h1>Your World, Expertly Planned ✨</h1>
+            <p class="text-white opacity-80">Explore your current trips or start a new adventure below.</p>
+        </div>
+
+        <div class="flex justify-between items-center mb-2">
+            <h2>Your Active Trips</h2>
+            <button class="btn btn-primary" onclick="window.location.href='create-trip.html'">
+                <i class="fas fa-plus"></i> Create New Trip
+            </button>
         </div>
 
         <div class="stats-grid animate-slide-up delay-100">

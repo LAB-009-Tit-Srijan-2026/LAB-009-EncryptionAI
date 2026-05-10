@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guide Profile - TravelAI</title>
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/pages.css">
+    <link rel="stylesheet" href="css/guides.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="dashboard-layout">
+    <aside class="sidebar">
+        <a href="index.html" class="nav-brand mb-2">
+            <i class="fas fa-plane-departure"></i> TravelAI
+        </a>
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="sidebar-link"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="tourist-guides.html" class="sidebar-link"><i class="fas fa-arrow-left"></i> Back to Guides</a>
+        </nav>
+    </aside>
+
+    <main class="dashboard-content">
+        <div id="profile-container" class="animate-fade-in">
+            <div class="glass-card p-4">
+                <div class="flex gap-4 items-start">
+                    <img id="p-photo" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400" class="profile-main-img" style="width: 200px; height: 200px; border-radius: var(--radius-lg); object-fit: cover;">
+                    <div class="flex-1">
+                        <div class="flex justify-between items-center">
+                            <h1 id="p-name" class="text-gradient">Local Expert</h1>
+                            <div id="p-verified" class="badge badge-success">Verified</div>
+                        </div>
+                        <p id="p-city" class="text-secondary mb-1"><i class="fas fa-map-marker-alt"></i> Ujjain, India</p>
+                        <div class="flex gap-2 items-center mb-2">
+                            <div class="text-warning"><i class="fas fa-star"></i> <span id="p-rating">4.9</span></div>
+                            <div class="text-secondary small">• <span id="p-exp">5</span> years experience</div>
+                        </div>
+                        <div id="p-specialties" class="flex gap-1 mb-2">
+                            <!-- Specialties here -->
+                        </div>
+                        <p id="p-bio" class="text-secondary italic mb-2">"Passionate about local history and hidden gems."</p>
+                        <div class="flex gap-2">
+                            <div class="glass-card p-1 flex-1 text-center">
+                                <div class="small text-secondary">Daily Rate</div>
+                                <div class="font-bold text-primary">₹<span id="p-price">0</span></div>
+                            </div>
+                            <div class="glass-card p-1 flex-1 text-center">
+                                <div class="small text-secondary">Languages</div>
+                                <div id="p-langs" class="font-bold">English, Hindi</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-2 mt-4 gap-4">
+                <div class="glass-card p-3">
+                    <h3>Review Highlights</h3>
+                    <div class="mt-2">
+                        <div class="border-left p-1 mb-2">
+                            <p class="small">"Amazing knowledge of the Mahakal temple history. Highly recommended!"</p>
+                            <span class="text-secondary x-small">- Rahul S., Dec 2025</span>
+                        </div>
+                        <div class="border-left p-1">
+                            <p class="small">"Professional and very helpful with group navigation."</p>
+                            <span class="text-secondary x-small">- Priya M., Jan 2026</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="glass-card p-3">
+                    <h3>Booking Availability</h3>
+                    <p class="small text-secondary mb-2">Available for the next 7 days. Verified instant booking.</p>
+                    <button class="btn btn-primary w-full" onclick="bookFromProfile()">Book This Guide</button>
+                    <p class="text-center x-small text-secondary mt-1"><i class="fas fa-shield-alt"></i> Secure payment & OTP verification</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/api.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const id = new URLSearchParams(window.location.search).get('id');
+            if (!id) return;
+
+            try {
+                const guide = await fetch(`${API_BASE_URL}/guides/${id}`, {
+                    headers: ApiService.getHeaders()
+                }).then(res => res.json());
+
+                document.getElementById('p-name').textContent = guide.name;
+                document.getElementById('p-city').innerHTML = `<i class="fas fa-map-marker-alt"></i> ${guide.city}`;
+                document.getElementById('p-rating').textContent = guide.rating;
+                document.getElementById('p-exp').textContent = guide.experience_years;
+                document.getElementById('p-bio').textContent = `"${guide.bio || 'Local expert ready to guide you.'}"`;
+                document.getElementById('p-price').textContent = guide.price_per_day;
+                document.getElementById('p-langs').textContent = (guide.languages_json || []).join(', ');
+                
+                if (guide.profile_photo) document.getElementById('p-photo').src = guide.profile_photo;
+                
+                const specContainer = document.getElementById('p-specialties');
+                specContainer.innerHTML = (guide.specialties_json || []).map(s => `<span class="specialty-pill">${s}</span>`).join('');
+                
+            } catch (error) {
+                console.error("Error loading profile:", error);
+            }
+        });
+
+        function bookFromProfile() {
+            const id = new URLSearchParams(window.location.search).get('id');
+            // Reuse bookGuide from guides.js if possible, or simple alert for now
+            showToast("Use the main guide list to book for a specific trip", "info");
+        }
+    </script>
+</body>
+</html>

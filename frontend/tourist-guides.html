@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tourist Guides - TravelAI</title>
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/pages.css">
+    <link rel="stylesheet" href="css/guides.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="dashboard-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <a href="index.html" class="nav-brand mb-2">
+            <i class="fas fa-plane-departure"></i> TravelAI
+        </a>
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="sidebar-link"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="#" class="sidebar-link" id="nav-itinerary"><i class="fas fa-map-marked-alt"></i> Itinerary</a>
+            <a href="nearby-homes.html" class="sidebar-link"><i class="fas fa-house-user"></i> Nearby Stays</a>
+            <a href="tourist-guides.html" class="sidebar-link active"><i class="fas fa-user-friends"></i> Find Guides</a>
+            <a href="host-dashboard.html" class="sidebar-link"><i class="fas fa-user-tie"></i> Host Dashboard</a>
+            <a href="#" class="sidebar-link" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </nav>
+    </aside>
+
+    <main class="dashboard-content">
+        <div class="dashboard-header animate-fade-in">
+            <div>
+                <h1 class="text-gradient">Professional Tourist Guides</h1>
+                <p class="text-secondary">Expert locals who bring stories, food, and culture to life.</p>
+            </div>
+            <button class="btn btn-primary" onclick="openRegisterModal()">
+                <i class="fas fa-user-plus"></i> Register as Guide
+            </button>
+        </div>
+
+        <!-- AI Trip Match Banner -->
+        <div id="ai-trip-recommendation" class="glass-card mt-2 animate-slide-up" style="display: none; border-left: 4px solid var(--primary);">
+            <div class="flex gap-2 items-center">
+                <div class="ai-avatar">
+                    <i class="fas fa-robot text-primary fa-2x"></i>
+                </div>
+                <div>
+                    <h4 class="text-primary">AI Smart Match for your Trip</h4>
+                    <p id="ai-match-text" class="small italic text-secondary">Analyzing your itinerary to find the perfect cultural companion...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="flex justify-between items-center mt-3">
+            <div class="flex gap-1">
+                <select id="filter-city" class="form-control" style="width: 150px;">
+                    <option value="">All Cities</option>
+                    <option value="Ujjain">Ujjain</option>
+                    <option value="Delhi">Delhi</option>
+                    <option value="Mumbai">Mumbai</option>
+                </select>
+                <select id="filter-specialty" class="form-control" style="width: 150px;">
+                    <option value="">All Specialties</option>
+                    <option value="Spiritual">Spiritual</option>
+                    <option value="Food">Food</option>
+                    <option value="History">History</option>
+                    <option value="Adventure">Adventure</option>
+                </select>
+            </div>
+            <p class="text-secondary small"><span id="guide-count">0</span> expert guides available</p>
+        </div>
+
+        <!-- Guides Grid -->
+        <div id="guides-container" class="guides-grid">
+            <!-- Dynamic guide cards -->
+            <div class="text-center py-5 w-full col-span-full">
+                <div class="spinner mx-auto"></div>
+                <p class="mt-1">Summoning local experts...</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Register Modal -->
+    <div id="register-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content glass-card animate-scale-in">
+            <h2 class="mb-2">Become a Verified Guide</h2>
+            <form id="guide-register-form">
+                <div class="form-group">
+                    <label>Professional Name</label>
+                    <input type="text" id="guide-name" class="form-control" placeholder="E.g. Ramesh Sharma" required>
+                </div>
+                <div class="flex gap-1">
+                    <div class="form-group flex-1">
+                        <label>Base City</label>
+                        <input type="text" id="guide-city" class="form-control" placeholder="E.g. Ujjain" required>
+                    </div>
+                    <div class="form-group flex-1">
+                        <label>Phone Number</label>
+                        <input type="text" id="guide-phone" class="form-control" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Specialties (Comma separated)</label>
+                    <input type="text" id="guide-specialties" class="form-control" placeholder="Spiritual, History, Food">
+                </div>
+                <div class="form-group">
+                    <label>Price per Day (₹)</label>
+                    <input type="number" id="guide-price" class="form-control" value="800">
+                </div>
+                <div class="form-group">
+                    <label>Short Bio</label>
+                    <textarea id="guide-bio" class="form-control" rows="3" placeholder="Tell travelers about your expertise..."></textarea>
+                </div>
+                <div class="flex gap-1 mt-2">
+                    <button type="button" class="btn btn-outline flex-1" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary flex-1">Start Guiding</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/guides.js"></script>
+</body>
+</html>

@@ -39,6 +39,10 @@ class SocketManager {
             window.dispatchEvent(new CustomEvent('sync-data', { detail: data }));
         });
 
+        this.socket.on('booking-votes-update', (data) => {
+            window.dispatchEvent(new CustomEvent('votes-updated', { detail: data }));
+        });
+
         this.socket.on('disconnect', () => {
             console.log('Disconnected from real-time server');
         });
@@ -61,6 +65,16 @@ class SocketManager {
             trip_id: this.tripId,
             user_name: this.userName,
             type: type
+        });
+    }
+
+    voteBooking(optionName, category) {
+        if (!this.socket) return;
+        this.socket.emit('vote-booking', {
+            trip_id: this.tripId,
+            user_id: this.userId,
+            option_name: optionName,
+            category: category
         });
     }
 

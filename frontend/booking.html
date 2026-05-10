@@ -101,6 +101,27 @@
             background: rgba(255,255,255,0.1);
             margin-right: 0.5rem;
         }
+        .source-badge {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.65rem;
+            font-weight: 800;
+            z-index: 10;
+            text-transform: uppercase;
+        }
+        .source-badge.live {
+            background: #065f46;
+            color: #34d399;
+        }
+        .source-badge.estimated {
+            background: #92400e;
+            color: #fbbf24;
+        }
+        .bg-success-light { background: rgba(52, 211, 153, 0.1); }
+        .bg-warning-light { background: rgba(251, 191, 36, 0.1); }
     </style>
 </head>
 <body class="dashboard-layout">
@@ -147,6 +168,8 @@
                 <button class="btn btn-primary" id="btn-search">Search Now</button>
             </div>
         </div>
+
+        <div id="source-banner-container"></div>
 
         <div id="booking-loading" class="text-center py-5" style="display: none;">
             <div class="spinner" style="border-top-color: var(--primary); width: 40px; height: 40px; margin: 0 auto;"></div>
