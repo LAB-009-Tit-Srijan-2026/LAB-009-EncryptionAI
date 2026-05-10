@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 function renderTrips(trips) {
     const container = document.getElementById('trips-container');
-    const tripsCount = document.getElementById('active-trips-count');
+    const tripsCount = document.getElementById('total-trips');
     if (tripsCount) tripsCount.textContent = trips.length;
     
     let totalBudget = 0;

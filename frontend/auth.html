@@ -1,63 +1,559 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Authentication - AI Travel Planner</title>
+    <title>Join TravelAI - Premium Authentication</title>
     <link rel="stylesheet" href="css/global.css">
-    <link rel="stylesheet" href="css/components.css">
-    <link rel="stylesheet" href="css/animations.css">
-    <link rel="stylesheet" href="css/pages.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background-color: var(--bg-main);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+
+        .auth-container {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* Left Panel: Decorative */
+        .auth-left {
+            flex: 4;
+            background: var(--primary-gradient);
+            display: none;
+            position: relative;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem;
+            color: white;
+            overflow: hidden;
+        }
+
+        @media (min-width: 1024px) {
+            .auth-left {
+                display: flex;
+            }
+        }
+
+        /* CSS Globe Illustration */
+        .globe-wrapper {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin-bottom: 3rem;
+        }
+
+        .globe-circle {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+        }
+
+        .globe-line {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 1px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+        }
+
+        .globe-line-v {
+            transform: rotateY(70deg);
+        }
+
+        .globe-line-h {
+            transform: rotateX(70deg);
+        }
+
+        .pin {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+        }
+
+        .pin::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: white;
+            border-radius: 50%;
+            animation: ping 2s infinite;
+        }
+
+        @keyframes ping {
+            0% {
+                transform: scale(1);
+                opacity: 0.8;
+            }
+
+            100% {
+                transform: scale(3);
+                opacity: 0;
+            }
+        }
+
+        .pin-1 {
+            top: 20%;
+            left: 30%;
+        }
+
+        .pin-2 {
+            top: 60%;
+            left: 70%;
+            animation-delay: 0.5s;
+        }
+
+        .pin-3 {
+            top: 40%;
+            left: 80%;
+            animation-delay: 1.2s;
+        }
+
+        .auth-quote {
+            text-align: center;
+            z-index: 10;
+        }
+
+        .auth-quote h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: white;
+        }
+
+        .testimonial-card {
+            position: absolute;
+            bottom: 4rem;
+            left: 4rem;
+            right: 4rem;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--radius-card);
+        }
+
+        /* Right Panel: Form */
+        .auth-right {
+            flex: 6;
+            background: var(--bg-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .auth-form-wrapper {
+            width: 100%;
+            max-width: 440px;
+        }
+
+        .auth-header {
+            margin-bottom: 2.5rem;
+        }
+
+        .auth-tabs {
+            display: flex;
+            position: relative;
+            margin-bottom: 3rem;
+            border-bottom: 2px solid var(--bg-main);
+            padding-bottom: 0.5rem;
+        }
+
+        .auth-tab {
+            flex: 1;
+            text-align: center;
+            padding: 0.75rem;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text-muted);
+            transition: var(--transition);
+        }
+
+        .auth-tab.active {
+            color: var(--primary);
+        }
+
+        .tab-indicator {
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 50%;
+            height: 2px;
+            background: var(--primary);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Floating Labels */
+        .form-group {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 1.25rem 1rem 0.75rem;
+            background: var(--surface);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-btn);
+            font-size: 1rem;
+            color: var(--text-primary);
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+
+        .form-label {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            color: var(--text-muted);
+            pointer-events: none;
+            transition: var(--transition);
+            font-size: 1rem;
+        }
+
+        .form-control:focus~.form-label,
+        .form-control:not(:placeholder-shown)~.form-label {
+            top: 0.4rem;
+            left: 0.8rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 1rem;
+            top: 1.1rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        /* Form Logic */
+        #signup-form {
+            display: none;
+        }
+
+        .form-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            font-size: 0.875rem;
+        }
+
+        .strength-meter {
+            display: flex;
+            gap: 0.25rem;
+            margin-top: 0.5rem;
+        }
+
+        .strength-bar {
+            flex: 1;
+            height: 4px;
+            background: var(--bg-main);
+            border-radius: 2px;
+            transition: var(--transition);
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-5px);
+            }
+
+            75% {
+                transform: translateX(5px);
+            }
+        }
+
+        .shake {
+            animation: shake 0.3s ease-in-out;
+        }
+
+        .spinner {
+            width: 1.2rem;
+            height: 1.2rem;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        [data-theme="dark"] .form-control {
+            background: #1e293b;
+            color: white;
+        }
+    </style>
 </head>
-<body>
+
+<body data-theme="light">
     <div class="auth-container">
-        <div class="glass-card auth-card animate-fade-in">
-            <div class="auth-header">
-                <h2 class="text-gradient">Welcome to TravelAI</h2>
-                <p class="text-secondary" id="auth-subtitle">Login to continue</p>
+        <!-- Left Panel -->
+        <div class="auth-left">
+            <div class="globe-wrapper animate-float">
+                <div class="globe-circle"></div>
+                <div class="globe-circle globe-line globe-line-v"></div>
+                <div class="globe-circle globe-line globe-line-h"></div>
+                <div class="pin pin-1"></div>
+                <div class="pin pin-2"></div>
+                <div class="pin pin-3"></div>
             </div>
 
-            <!-- Login Form -->
-            <form id="login-form">
-                <div class="form-group">
-                    <label class="form-label">Email</label>
-                    <input type="email" id="login-email" class="form-control" required placeholder="Enter your email">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Password</label>
-                    <input type="password" id="login-password" class="form-control" required placeholder="Enter your password">
-                </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">Login <i class="fas fa-sign-in-alt"></i></button>
-                <p class="text-center mt-1">
-                    <a href="#" id="show-register" class="text-secondary">Don't have an account? Sign up</a>
-                </p>
-            </form>
+            <div class="auth-quote">
+                <h2></h2>
+                <p class="opacity-80"></p>
+            </div>
 
-            <!-- Register Form (Hidden initially) -->
-            <form id="register-form" style="display: none;">
-                <div class="form-group">
-                    <label class="form-label">Full Name</label>
-                    <input type="text" id="reg-name" class="form-control" required placeholder="Enter your full name">
+            <div class="testimonial-card animate-float" style="animation-delay: 1s;">
+                <div class="flex items-center gap-1 mb-1">
+                    <div class="avatar"
+                        style="width: 40px; height: 40px; background: url('https://i.pravatar.cc/150?u=sarah') center/cover;">
+                    </div>
+                    <div>
+                        <div class="small font-bold">Sarah Jenkins</div>
+                        <div class="text-warning small"><i class="fas fa-star"></i><i class="fas fa-star"></i><i
+                                class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Email</label>
-                    <input type="email" id="reg-email" class="form-control" required placeholder="Enter your email">
+                <p class="small opacity-90">"TravelAI saved our group hours of planning for our Bali trip. The AI
+                    itinerary was spot on!"</p>
+            </div>
+        </div>
+
+        <!-- Right Panel -->
+        <div class="auth-right">
+            <div class="auth-form-wrapper animate-slide-up">
+                <div class="auth-header">
+                    <h1 class="text-gradient">Welcome to TravelAI</h1>
+                    <p class="text-secondary">Please enter your details to continue.</p>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Password</label>
-                    <input type="password" id="reg-password" class="form-control" required placeholder="Create a password">
+
+                <div class="auth-tabs">
+                    <div class="auth-tab active" id="tab-login" onclick="switchTab('login')">Sign In</div>
+                    <div class="auth-tab" id="tab-signup" onclick="switchTab('signup')">Sign Up</div>
+                    <div class="tab-indicator" id="tab-indicator"></div>
                 </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">Create Account <i class="fas fa-user-plus"></i></button>
-                <p class="text-center mt-1">
-                    <a href="#" id="show-login" class="text-secondary">Already have an account? Login</a>
-                </p>
-            </form>
+
+                <!-- Login Form -->
+                <form id="login-form">
+                    <div class="form-group">
+                        <input type="email" id="login-email" class="form-control" placeholder=" " required>
+                        <label class="form-label">Email Address</label>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="login-password" class="form-control" placeholder=" " required>
+                        <label class="form-label">Password</label>
+                        <i class="fas fa-eye password-toggle" onclick="togglePassword('login-password')"></i>
+                    </div>
+
+                    <div class="form-footer">
+                        <label class="flex items-center gap-0-5" style="cursor: pointer;">
+                            <input type="checkbox"> Remember me
+                        </label>
+                        <a href="#" class="text-primary font-bold">Forgot password?</a>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary"
+                        style="width: 100%; justify-content: center; height: 3.5rem;">
+                        <span class="btn-text">Sign In</span>
+                    </button>
+                </form>
+
+                <!-- Signup Form -->
+                <form id="signup-form">
+                    <div class="form-group">
+                        <input type="text" id="signup-name" class="form-control" placeholder=" " required>
+                        <label class="form-label">Full Name</label>
+                    </div>
+                    <div class="form-group">
+                        <input type="email" id="signup-email" class="form-control" placeholder=" " required>
+                        <label class="form-label">Email Address</label>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="signup-password" class="form-control" placeholder=" " required
+                            oninput="checkPasswordStrength(this.value)">
+                        <label class="form-label">Password</label>
+                        <i class="fas fa-eye password-toggle" onclick="togglePassword('signup-password')"></i>
+                        <div class="strength-meter">
+                            <div class="strength-bar" id="bar-1"></div>
+                            <div class="strength-bar" id="bar-2"></div>
+                            <div class="strength-bar" id="bar-3"></div>
+                            <div class="strength-bar" id="bar-4"></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="signup-confirm" class="form-control" placeholder=" " required>
+                        <label class="form-label">Confirm Password</label>
+                    </div>
+
+                    <div class="form-footer">
+                        <label class="flex items-center gap-0-5" style="cursor: pointer; font-size: 0.8rem;">
+                            <input type="checkbox" required> I agree to the Terms & Privacy Policy
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary"
+                        style="width: 100%; justify-content: center; height: 3.5rem;">
+                        <span class="btn-text">Create Account</span>
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 
     <script src="js/api.js"></script>
     <script src="js/app.js"></script>
-    <script src="js/auth_page.js"></script>
+    <script>
+        // Tab Switching Logic
+        function switchTab(tab) {
+            const loginForm = document.getElementById('login-form');
+            const signupForm = document.getElementById('signup-form');
+            const indicator = document.getElementById('tab-indicator');
+            const tabLogin = document.getElementById('tab-login');
+            const tabSignup = document.getElementById('tab-signup');
+
+            if (tab === 'login') {
+                loginForm.style.display = 'block';
+                signupForm.style.display = 'none';
+                tabLogin.classList.add('active');
+                tabSignup.classList.remove('active');
+                indicator.style.transform = 'translateX(0)';
+            } else {
+                loginForm.style.display = 'none';
+                signupForm.style.display = 'block';
+                tabLogin.classList.remove('active');
+                tabSignup.classList.add('active');
+                indicator.style.transform = 'translateX(100%)';
+            }
+        }
+
+        // Toggle Password Visibility
+        function togglePassword(id) {
+            const input = document.getElementById(id);
+            const icon = input.nextElementSibling;
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        }
+
+        // Password Strength Indicator
+        function checkPasswordStrength(val) {
+            const bars = [
+                document.getElementById('bar-1'),
+                document.getElementById('bar-2'),
+                document.getElementById('bar-3'),
+                document.getElementById('bar-4')
+            ];
+
+            bars.forEach(b => b.style.background = 'var(--bg-main)');
+
+            let strength = 0;
+            if (val.length >= 6) strength++;
+            if (/[A-Z]/.test(val)) strength++;
+            if (/[0-9]/.test(val)) strength++;
+            if (/[^A-Za-z0-9]/.test(val)) strength++;
+
+            const colors = ['#ef4444', '#f59e0b', '#3b82f6', '#10b981'];
+            for (let i = 0; i < strength; i++) {
+                bars[i].style.background = colors[strength - 1];
+            }
+        }
+
+        // Authentication Logic
+        const loginForm = document.getElementById('login-form');
+        const signupForm = document.getElementById('signup-form');
+
+        async function handleAuth(e, type) {
+            e.preventDefault();
+            const form = e.target;
+            const btn = form.querySelector('.btn-primary');
+            const btnText = btn.querySelector('.btn-text');
+            const originalText = btnText.textContent;
+
+            // Loading state
+            btn.disabled = true;
+            btnText.innerHTML = '<div class="spinner"></div>';
+
+            try {
+                let response;
+                if (type === 'login') {
+                    const email = document.getElementById('login-email').value;
+                    const password = document.getElementById('login-password').value;
+                    response = await ApiService.login(email, password);
+
+                    // Save token
+                    localStorage.setItem('access_token', response.access_token);
+                    showToast('Welcome back! Redirecting...', 'success');
+                    setTimeout(() => window.location.href = 'dashboard.html', 1000);
+                } else {
+                    const name = document.getElementById('signup-name').value;
+                    const email = document.getElementById('signup-email').value;
+                    const password = document.getElementById('signup-password').value;
+                    const confirm = document.getElementById('signup-confirm').value;
+
+                    if (password !== confirm) throw new Error("Passwords do not match");
+
+                    response = await ApiService.register({ name, email, password });
+                    showToast('Account created! Please sign in.', 'success');
+                    switchTab('login');
+                    document.getElementById('login-email').value = email;
+                    btn.disabled = false;
+                    btnText.textContent = originalText;
+                }
+
+            } catch (error) {
+                showToast(error.message, 'error');
+                form.classList.add('shake');
+                setTimeout(() => form.classList.remove('shake'), 500);
+                btn.disabled = false;
+                btnText.textContent = originalText;
+            }
+        }
+
+        loginForm.addEventListener('submit', (e) => handleAuth(e, 'login'));
+        signupForm.addEventListener('submit', (e) => handleAuth(e, 'signup'));
+
+        // Init Theme
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.body.setAttribute('data-theme', savedTheme);
+    </script>
 </body>
+
 </html>

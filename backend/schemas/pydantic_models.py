@@ -42,6 +42,7 @@ class Trip(TripBase):
     owner_id: int
     created_at: datetime
     members: List[User] = []
+    itinerary: Optional["Itinerary"] = None
     class Config:
         from_attributes = True
 

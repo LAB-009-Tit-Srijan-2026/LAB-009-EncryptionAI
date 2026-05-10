@@ -6,7 +6,7 @@ class ApiService {
             'Content-Type': 'application/json',
         };
         if (includeAuth) {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('access_token');
             if (token) {
                 headers['Authorization'] = `Bearer ${token}`;
             }
@@ -44,11 +44,11 @@ class ApiService {
         return this.handleResponse(response);
     }
 
-    static async register(name, email, password) {
+    static async register(userData) {
         const response = await fetch(`${API_BASE_URL}/auth/register`, {
             method: 'POST',
             headers: this.getHeaders(false),
-            body: JSON.stringify({ name, email, password }),
+            body: JSON.stringify(userData),
         });
         return this.handleResponse(response);
     }
@@ -169,7 +169,7 @@ class ApiService {
         const response = await fetch(`${API_BASE_URL}/expenses/scan-receipt`, {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
+                'Authorization': `Bearer ${localStorage.getItem('access_token')}`
             },
             body: formData,
         });

@@ -3,77 +3,511 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Travel Planner - Plan Smart Trips</title>
+    <title>TravelAI - AI-Powered Group Trip Planning</title>
     <link rel="stylesheet" href="css/global.css">
-    <link rel="stylesheet" href="css/components.css">
-    <link rel="stylesheet" href="css/animations.css">
-    <link rel="stylesheet" href="css/pages.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Landing Page Specific Overrides */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding-top: 80px;
+            overflow: hidden;
+        }
+
+        .gradient-blob {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(168, 85, 247, 0.05) 100%);
+            filter: blur(120px);
+            z-index: -1;
+            border-radius: 50%;
+        }
+
+        .blob-1 { top: -10%; right: -10%; }
+        .blob-2 { bottom: -10%; left: -10%; }
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 5%;
+            z-index: 1000;
+            transition: var(--transition);
+        }
+
+        .navbar.scrolled {
+            background: var(--glass-bg);
+            backdrop-filter: blur(var(--glass-blur));
+            border-bottom: 1px solid var(--glass-border);
+            height: 70px;
+        }
+
+        .nav-brand {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .nav-link:hover {
+            color: var(--primary);
+        }
+
+        .hero-content {
+            max-width: 600px;
+            z-index: 10;
+        }
+
+        .tag-pill {
+            display: inline-flex;
+            padding: 0.5rem 1rem;
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 100px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            margin-bottom: 1.5rem;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            margin-bottom: 2.5rem;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 3rem;
+        }
+
+        .social-proof {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .avatar-group {
+            display: flex;
+            margin-right: 0.5rem;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid var(--surface);
+            margin-left: -12px;
+            background: #e2e8f0;
+        }
+
+        .avatar:first-child { margin-left: 0; }
+
+        /* Floating Cards */
+        .floating-cards {
+            position: absolute;
+            right: 5%;
+            width: 500px;
+            height: 600px;
+            display: none;
+        }
+
+        @media (min-width: 1024px) {
+            .floating-cards { display: block; }
+        }
+
+        .f-card {
+            position: absolute;
+            width: 280px;
+            padding: 1.25rem;
+            z-index: 5;
+        }
+
+        .f-card-1 { top: 10%; right: 0; animation-delay: 0s; }
+        .f-card-2 { top: 40%; left: 0; animation-delay: 1s; }
+        .f-card-3 { bottom: 10%; right: 10%; animation-delay: 2s; }
+
+        /* Sections */
+        .section {
+            padding: 100px 5%;
+        }
+
+        .section-header {
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto 60px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            padding: 2.5rem;
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--primary-gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            margin: 0 auto 1.5rem;
+        }
+
+        /* How it works */
+        .steps-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 4rem;
+            position: relative;
+            flex-wrap: wrap;
+        }
+
+        .steps-container::after {
+            content: '';
+            position: absolute;
+            top: 45px;
+            left: 10%;
+            right: 10%;
+            height: 2px;
+            border-top: 2px dashed var(--text-muted);
+            z-index: -1;
+            display: none;
+        }
+
+        @media (min-width: 768px) {
+            .steps-container::after { display: block; }
+        }
+
+        .step-item {
+            flex: 1;
+            min-width: 250px;
+            text-align: center;
+        }
+
+        .step-number {
+            width: 90px;
+            height: 90px;
+            background: var(--surface);
+            border: 1px solid var(--glass-border);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0 auto 1.5rem;
+            box-shadow: var(--glass-shadow);
+        }
+
+        /* Footer */
+        footer {
+            background: #020617;
+            color: white;
+            padding: 80px 5% 40px;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 4rem;
+            margin-bottom: 60px;
+        }
+
+        .footer-logo {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            display: block;
+        }
+
+        .footer-links h4 { margin-bottom: 1.5rem; color: white; }
+        .footer-links ul li { margin-bottom: 0.75rem; }
+        .footer-links a { color: #94a3b8; font-size: 0.875rem; }
+        .footer-links a:hover { color: white; }
+
+        .footer-bottom {
+            padding-top: 40px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+            color: #64748b;
+            font-size: 0.875rem;
+        }
+
+        [data-theme="dark"] .avatar { background: #1e293b; }
+    </style>
 </head>
-<body>
-    <nav class="navbar animate-slide-up">
-        <div class="container">
-            <a href="index.html" class="nav-brand">
-                <i class="fas fa-plane-departure"></i> TravelAI
-            </a>
-            <div class="nav-links">
-                <a href="#features">Features</a>
-                <a href="#destinations">Destinations</a>
-                <a href="auth.html" id="nav-auth-link" class="btn btn-primary">Login / Sign Up</a>
-                <a href="dashboard.html" id="nav-dashboard-link" class="btn btn-primary" style="display: none;">Dashboard</a>
-            </div>
+<body data-theme="light">
+    <!-- Navbar -->
+    <nav class="navbar" id="navbar">
+        <a href="index.html" class="nav-brand">
+            <span class="text-gradient"><i class="fas fa-plane-departure"></i> TravelAI</span>
+        </a>
+        <div class="nav-links">
+            <a href="#features" class="nav-link">Features</a>
+            <a href="#how-it-works" class="nav-link">How it works</a>
+            <a href="#pricing" class="nav-link">Pricing</a>
+            <button onclick="toggleTheme()" class="btn btn-outline" style="padding: 0.5rem; border-radius: 50%; width: 40px; height: 40px; justify-content: center;">
+                <i class="fas fa-moon" id="theme-icon"></i>
+            </button>
+            <a href="auth.html" class="btn btn-primary">Start Planning</a>
         </div>
     </nav>
 
-    <main>
-        <section class="hero-section container">
-            <div class="hero-content animate-slide-up delay-100">
-                <h1 class="hero-title">Plan Smart Trips with <span class="text-gradient">AI</span></h1>
-                <p class="hero-subtitle">The ultimate platform for group travel. Generate AI itineraries, estimate budgets, and split expenses effortlessly.</p>
+    <!-- Hero Section -->
+    <header class="hero">
+        <div class="gradient-blob blob-1"></div>
+        <div class="gradient-blob blob-2"></div>
+        
+        <div class="container" style="display: flex; align-items: center; justify-content: space-between;">
+            <div class="hero-content animate-fade-in">
+                <div class="tag-pill">✨ AI-Powered Travel Planning</div>
+                <h1>Plan Smarter Group Trips with <span class="text-gradient">AI</span></h1>
+                <p>Collaborate with friends, track group expenses, and let AI generate the perfect itinerary for your next adventure.</p>
+                
                 <div class="hero-actions">
-                    <a href="auth.html" class="btn btn-primary btn-lg">Start Planning Now <i class="fas fa-arrow-right"></i></a>
-                    <a href="#how-it-works" class="btn btn-outline btn-lg" style="margin-left: 1rem;">See How It Works</a>
+                    <a href="auth.html" class="btn btn-primary btn-lg animate-pulse-glow">Get Started Free</a>
+                    <a href="#" class="btn btn-outline btn-lg">Watch Demo</a>
+                </div>
+
+                <div class="social-proof">
+                    <div class="avatar-group">
+                        <div class="avatar"></div>
+                        <div class="avatar"></div>
+                        <div class="avatar"></div>
+                        <div class="avatar"></div>
+                    </div>
+                    <span class="text-secondary small"><strong>2,500+</strong> trips planned this month</span>
                 </div>
             </div>
+
+            <div class="floating-cards">
+                <!-- Card 1: Trip to Goa -->
+                <div class="glass-card f-card f-card-1 animate-float">
+                    <div class="flex justify-between items-center mb-1">
+                        <h4 style="font-size: 0.9rem;">Trip to Goa 🏖️</h4>
+                        <span class="badge" style="background: var(--success); color: white; font-size: 0.6rem;">ACTIVE</span>
+                    </div>
+                    <div class="text-muted small mb-1">Budget: ₹45,000</div>
+                    <div class="avatar-group">
+                        <div class="avatar" style="width: 24px; height: 24px;"></div>
+                        <div class="avatar" style="width: 24px; height: 24px;"></div>
+                        <div class="avatar" style="width: 24px; height: 24px;"></div>
+                    </div>
+                </div>
+
+                <!-- Card 2: AI Itinerary -->
+                <div class="glass-card f-card f-card-2 animate-float">
+                    <div class="flex items-center gap-0-5 mb-1">
+                        <i class="fas fa-magic text-primary" style="font-size: 0.8rem;"></i>
+                        <h4 style="font-size: 0.9rem;">AI Itinerary ✨</h4>
+                    </div>
+                    <ul class="small" style="color: var(--text-secondary);">
+                        <li style="margin-bottom: 0.5rem;"><i class="fas fa-check text-success"></i> Day 1: Beach Sunset</li>
+                        <li style="margin-bottom: 0.5rem;"><i class="fas fa-check text-success"></i> Day 2: Scuba Diving</li>
+                        <li><i class="fas fa-check text-success"></i> Day 3: Fort Aguada</li>
+                    </ul>
+                </div>
+
+                <!-- Card 3: Expenses Split -->
+                <div class="glass-card f-card f-card-3 animate-float">
+                    <div class="flex items-center gap-0-5 mb-1">
+                        <i class="fas fa-money-bill-wave text-success" style="font-size: 0.8rem;"></i>
+                        <h4 style="font-size: 0.9rem;">Expenses Split 💸</h4>
+                    </div>
+                    <div class="small" style="display: flex; flex-direction: column; gap: 0.4rem;">
+                        <div class="flex justify-between"><span>Rahul owes</span> <span class="text-danger">₹1,200</span></div>
+                        <div class="flex justify-between"><span>Sneha is owed</span> <span class="text-success">₹450</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Features Section -->
+    <section class="section" id="features">
+        <div class="section-header">
+            <h2 class="animate-slide-up">Everything you need for the <span class="text-gradient">Perfect Trip</span></h2>
+            <p class="text-secondary animate-slide-up" style="margin-top: 1rem;">No more messy spreadsheets or endless chat threads. TravelAI brings your group together in one smart dashboard.</p>
+        </div>
+
+        <div class="features-grid">
+            <div class="glass-card feature-card animate-slide-up animate-stagger-1">
+                <div class="feature-icon"><i class="fas fa-brain"></i></div>
+                <h3>AI Itineraries</h3>
+                <p class="text-secondary small mt-1">Personalized day-by-day plans generated based on your interests and budget.</p>
+            </div>
+            <div class="glass-card feature-card animate-slide-up animate-stagger-2">
+                <div class="feature-icon"><i class="fas fa-users"></i></div>
+                <h3>Group Splitting</h3>
+                <p class="text-secondary small mt-1">Split costs fairly and settle up with one click. Automatic debt simplification included.</p>
+            </div>
+            <div class="glass-card feature-card animate-slide-up animate-stagger-3">
+                <div class="feature-icon"><i class="fas fa-calendar-check"></i></div>
+                <h3>Unified Booking</h3>
+                <p class="text-secondary small mt-1">Book hotels, flights, and activities directly within the app at the best prices.</p>
+            </div>
+            <div class="glass-card feature-card animate-slide-up animate-stagger-4">
+                <div class="feature-icon"><i class="fas fa-comments"></i></div>
+                <h3>Real-time Chat</h3>
+                <p class="text-secondary small mt-1">Coordinate in real-time with your group. AI assistant joins the chat to help with decisions.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- How it works -->
+    <section class="section" id="how-it-works" style="background: rgba(99, 102, 241, 0.02);">
+        <div class="section-header">
+            <h2 class="animate-slide-up">How it Works</h2>
+        </div>
+
+        <div class="steps-container">
+            <div class="step-item animate-slide-up animate-stagger-1">
+                <div class="step-number text-gradient">1</div>
+                <h3>Create a Trip</h3>
+                <p class="text-secondary small">Set your destination, budget, and invite your friends to join.</p>
+            </div>
+            <div class="step-item animate-slide-up animate-stagger-2">
+                <div class="step-number text-gradient">2</div>
+                <h3>AI Magic</h3>
+                <p class="text-secondary small">Our AI engine drafts a perfect plan and suggests the best bookings.</p>
+            </div>
+            <div class="step-item animate-slide-up animate-stagger-3">
+                <div class="step-number text-gradient">3</div>
+                <h3>Go & Explore</h3>
+                <p class="text-secondary small">Track expenses on the go and focus on making memories.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-grid">
+            <div>
+                <span class="footer-logo"><span class="text-gradient"><i class="fas fa-plane-departure"></i> TravelAI</span></span>
+                <p style="color: #94a3b8; font-size: 0.875rem;">The next generation of group travel planning. Powered by Gemini AI.</p>
+            </div>
+            <div class="footer-links">
+                <h4>Product</h4>
+                <ul>
+                    <li><a href="#">Features</a></li>
+                    <li><a href="#">AI Itinerary</a></li>
+                    <li><a href="#">Expense Tracker</a></li>
+                </ul>
+            </div>
+            <div class="footer-links">
+                <h4>Resources</h4>
+                <ul>
+                    <li><a href="#">Help Center</a></li>
+                    <li><a href="#">Safety Guides</a></li>
+                    <li><a href="#">API Docs</a></li>
+                </ul>
+            </div>
+            <div class="footer-links">
+                <h4>Company</h4>
+                <ul>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Careers</a></li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; 2026 TravelAI Ecosystem. Built for Srijan Hackathon.
+        </div>
+    </footer>
+
+    <script>
+        // Navbar Scroll Effect
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+        });
+
+        // Theme Toggle
+        function toggleTheme() {
+            const body = document.body;
+            const currentTheme = body.getAttribute('data-theme');
+            const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            body.setAttribute('data-theme', nextTheme);
+            localStorage.setItem('theme', nextTheme);
             
-            <div class="hero-visual animate-fade-in delay-300 floating" style="position: absolute; right: 10%; top: 30%;">
-                <div class="glass-card" style="width: 350px;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
-                        <strong><i class="fas fa-map-marker-alt" style="color: var(--primary)"></i> Goa, India</strong>
-                        <span class="text-secondary">3 Days</span>
-                    </div>
-                    <div style="background: rgba(0,0,0,0.2); border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
-                        <p style="font-size: 0.9rem; margin-bottom: 0.5rem;"><i class="fas fa-check-circle" style="color: var(--success)"></i> Beaches & Nightlife</p>
-                        <p style="font-size: 0.9rem; margin-bottom: 0.5rem;"><i class="fas fa-check-circle" style="color: var(--success)"></i> Seafood Restaurants</p>
-                        <p style="font-size: 0.9rem;"><i class="fas fa-check-circle" style="color: var(--success)"></i> Budget: ₹20,000</p>
-                    </div>
-                    <button class="btn btn-primary" style="width: 100%">AI Itinerary Generated <i class="fas fa-magic"></i></button>
-                </div>
-            </div>
-        </section>
+            // Update Icon
+            const icon = document.getElementById('theme-icon');
+            icon.className = nextTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+        }
 
-        <section id="features" class="container py-5">
-            <h2 class="text-center text-gradient" style="font-size: 2.5rem; margin-bottom: 3rem;">Powerful Features</h2>
-            <div class="features-grid">
-                <div class="glass-card feature-card animate-slide-up delay-100">
-                    <i class="fas fa-robot feature-icon"></i>
-                    <h3>AI Itinerary Generation</h3>
-                    <p class="text-secondary mt-1">Get personalized day-by-day plans based on your interests and budget using Gemini AI.</p>
-                </div>
-                <div class="glass-card feature-card animate-slide-up delay-200">
-                    <i class="fas fa-wallet feature-icon" style="color: var(--secondary)"></i>
-                    <h3>Budget Optimization</h3>
-                    <p class="text-secondary mt-1">Smart budget estimations for hotels, food, transport, and activities.</p>
-                </div>
-                <div class="glass-card feature-card animate-slide-up delay-300">
-                    <i class="fas fa-users feature-icon" style="color: var(--success)"></i>
-                    <h3>Expense Splitting</h3>
-                    <p class="text-secondary mt-1">Easily add expenses and let the system calculate who owes whom in the group.</p>
-                </div>
-            </div>
-        </section>
-    </main>
+        // Initialize Theme
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.body.setAttribute('data-theme', savedTheme);
+        document.getElementById('theme-icon').className = savedTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
 
-    <script src="js/app.js"></script>
+        // Intersection Observer for Animations
+        const observerOptions = {
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible'); // If we want custom logic
+                    // Animations are already triggered by CSS classes, 
+                    // but we can add 'visible' to restart them or trigger JS-based ones
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.animate-slide-up, .animate-fade-in').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
 </body>
 </html>

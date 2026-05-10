@@ -30,7 +30,7 @@ function showToast(message, type = 'success') {
 }
 
 function checkAuth(redirectIfNotAuthenticated = true) {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('access_token');
     if (!token && redirectIfNotAuthenticated) {
         window.location.href = 'auth.html';
     }
@@ -38,12 +38,12 @@ function checkAuth(redirectIfNotAuthenticated = true) {
 }
 
 function logout() {
-    localStorage.removeItem('token');
+    localStorage.removeItem('access_token');
     window.location.href = 'auth.html';
 }
 
 function updateNavbarAuth() {
-    const isAuth = localStorage.getItem('token') !== null;
+    const isAuth = localStorage.getItem('access_token') !== null;
     const authLink = document.getElementById('nav-auth-link');
     const dashboardLink = document.getElementById('nav-dashboard-link');
     
@@ -55,6 +55,28 @@ function updateNavbarAuth() {
     }
 }
 
+function updateSidebarLinks() {
+    const lastTripId = localStorage.getItem('last_trip_id');
+    const navLinks = document.querySelectorAll('.sidebar-link');
+    const currentPath = window.location.pathname.split('/').pop() || 'index.html';
+    
+    navLinks.forEach(link => {
+        const href = link.getAttribute('href');
+        if (!href || href === '#' || href === 'dashboard.html') return;
+
+        // Append trip ID to trip-specific pages if we have one
+        if (lastTripId && (href === 'expenses.html' || href === 'booking.html' || href === 'chat.html' || href === 'itinerary.html')) {
+            link.setAttribute('href', `${href}?id=${lastTripId}`);
+        }
+
+        // Active state
+        if (href === currentPath) {
+            link.classList.add('active');
+        }
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     updateNavbarAuth();
+    updateSidebarLinks();
 });

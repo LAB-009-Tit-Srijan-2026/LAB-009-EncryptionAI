@@ -20,6 +20,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             const trip = await ApiService.createTrip(tripData);
+            
+            // Store as current trip for sidebar persistence
+            localStorage.setItem('last_trip_id', trip.id);
+            
             showToast('Trip created successfully!');
             // Redirect to itinerary generation page
             setTimeout(() => window.location.href = `itinerary.html?id=${trip.id}`, 1000);

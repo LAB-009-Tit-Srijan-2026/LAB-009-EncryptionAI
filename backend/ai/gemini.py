@@ -9,8 +9,8 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if GEMINI_API_KEY:
     genai.configure(api_key=GEMINI_API_KEY)
 
-# Use a modern model. In 2026, gemini-flash-latest is a standard stable choice.
-MODEL_NAME = 'gemini-flash-latest'
+# Use a modern model. In 2026, gemini-1.5-flash-latest is a standard stable choice.
+MODEL_NAME = 'gemini-1.5-flash-latest'
 model = genai.GenerativeModel(MODEL_NAME)
 
 def generate_trip_itinerary(destination: str, budget: float, days: int, group_size: int, interests: str):
